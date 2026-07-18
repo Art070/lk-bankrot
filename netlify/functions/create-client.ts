@@ -33,9 +33,11 @@ const json = (status: number, body: unknown) => new Response(JSON.stringify(body
 export default async (request: Request) => {
   if (request.method !== 'POST') return json(405, { error: 'Method not allowed' })
 
-  const url = process.env.SUPABASE_URL
+  // VITE_ variables are already configured for the client build. Reuse their
+  // values inside this function so only the service-role key stays server-only.
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const anonKey = process.env.SUPABASE_ANON_KEY
+  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
   if (!url || !serviceKey || !anonKey) return json(500, { error: 'Server is not configured' })
 
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
