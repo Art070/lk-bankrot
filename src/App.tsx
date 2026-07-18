@@ -29,9 +29,15 @@ function FullScreenLoader() {
 
 export default function App() {
   const { isAuthenticated, loading, configured, user } = useAuth()
+  const query = new URLSearchParams(window.location.search)
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const isActivationLink = window.location.pathname === '/activate'
+    || query.has('code')
+    || hash.get('type') === 'invite'
+    || hash.get('type') === 'recovery'
 
   if (!configured) return <Setup />
-  if (window.location.pathname === '/activate') return <ActivateAccount />
+  if (isActivationLink) return <ActivateAccount />
   if (loading) return <FullScreenLoader />
 
   if (!isAuthenticated) {
