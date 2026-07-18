@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# React Router handles these client-side routes. Netlify must always serve the
+# application shell instead of returning its own 404 page on a direct visit.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
