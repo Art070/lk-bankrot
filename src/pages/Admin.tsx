@@ -60,8 +60,9 @@ export function Admin() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const response = await fetch('/.netlify/functions/create-client', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token ?? ''}` }, body: JSON.stringify(payload) })
-      const body = await response.json() as ({ error?: string } & Partial<Created>)
-      if (!response.ok || !body.caseId || !body.documentRequests) throw new Error(body.error ?? 'Не удалось создать клиента')
+      const rawBody = await response.text()
+      const body = (rawBody ? JSON.parse(rawBody) : {}) as ({ error?: string } & Partial<Created>)
+      if (!response.ok || !body.caseId || !body.documentRequests) throw new Error(body.error ?? `Не удалось создать клиента (код ${response.status})`)
       await uploadFiles({ caseId: body.caseId, documentRequests: body.documentRequests }, files)
       setHeader(buildHeader(payload)); element.reset(); setBirthDate(''); setNotice('Карточка создана, документы прикреплены и отправлены на проверку. Клиенту направлено приглашение для входа.'); await loadRequests()
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось создать клиента') } finally { setSending(false) }

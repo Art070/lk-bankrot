@@ -25,10 +25,9 @@ interface CreateClientPayload {
   totalDebt?: number
 }
 
-const json = (statusCode: number, body: unknown) => ({
-  statusCode,
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(body),
+const json = (status: number, body: unknown) => new Response(JSON.stringify(body), {
+  status,
+  headers: { 'Content-Type': 'application/json; charset=utf-8' },
 })
 
 export default async (request: Request) => {
