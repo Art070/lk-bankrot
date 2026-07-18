@@ -1,14 +1,17 @@
 import { AlertCircle, Check, CheckCircle2, Copy, FileUp, Plus, RotateCcw, UserPlus } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
+import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 
 type Request = { id: string; title: string; status: string; reviewer_comment: string | null; cases: { case_number: string | null; profiles: { full_name: string } | null } | null; document_request_files: { id: string; file_name: string }[] }
 type Created = { caseId: string; documentRequests: { id: string; title: string }[] }
+type ClientCase = { id: string; case_status: string; profiles: { full_name: string } | null }
 
 const value = (form: FormData, name: string) => String(form.get(name) ?? '').trim()
 const formatDate = (date: string) => date ? new Intl.DateTimeFormat('ru-RU').format(new Date(`${date}T00:00:00`)) : '—'
 
 export function Admin() {
+  const { user } = useAuth()
   const [sending, setSending] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
@@ -76,6 +79,7 @@ export function Admin() {
 
   const age = birthDate ? Math.floor((Date.now() - new Date(`${birthDate}T00:00:00`).getTime()) / 31557600000) : null
   return <div className="mx-auto max-w-4xl space-y-6"><div><h2 className="text-xl font-bold text-navy-800 dark:text-white">Управление клиентами</h2><p className="mt-1 text-sm text-navy-400 dark:text-white/40">После подписания договора создайте защищённую карточку. Поля подобраны для шапки будущего заявления; сведения о суде и деле добавляются позже.</p></div>
+    <ClientUpdateEditor staffId={user?.id ?? ''} />
     <form onSubmit={submit} className="card space-y-7 p-6"><div className="flex gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-100 text-gold-700"><UserPlus className="h-5 w-5" /></span><div><h3 className="font-semibold text-navy-800 dark:text-white">Новый клиент</h3><p className="text-sm text-navy-400">Поля со звёздочкой обязательны для создания личного кабинета.</p></div></div>{notice && <p className="flex gap-2 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700"><CheckCircle2 className="h-5 w-5 shrink-0" />{notice}</p>}{error && <p className="flex gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"><AlertCircle className="h-5 w-5 shrink-0" />{error}</p>}
       <FormSection title="Контакты и данные должника"><div className="grid gap-4 sm:grid-cols-2"><Field name="fullName" label="ФИО полностью" required /><Field name="email" label="Email для приглашения" type="email" required /><Field name="phone" label="Телефон" type="tel" required /><label className="text-sm font-medium text-navy-700 dark:text-white/70">Дата рождения *<input name="birthDate" type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="input-field mt-1.5" />{age !== null && <span className="mt-1 block text-xs font-normal text-navy-400">Возраст: {age} лет</span>}</label><Field name="birthPlace" label="Место рождения" required /><Field name="totalDebt" label="Предварительная сумма долга, ₽" type="number" /></div></FormSection>
       <FormSection title="Паспортные данные"><div className="grid gap-4 sm:grid-cols-2"><Field name="passportSeries" label="Серия паспорта" inputMode="numeric" required /><Field name="passportNumber" label="Номер паспорта" inputMode="numeric" required /><Field name="passportIssuedBy" label="Кем выдан" required /><Field name="passportIssuedDate" label="Дата выдачи" type="date" required /><Field name="passportDepartmentCode" label="Код подразделения" /></div></FormSection>
@@ -87,6 +91,46 @@ export function Admin() {
     {header && <section className="card p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="font-semibold text-navy-800 dark:text-white">Шапка заявления: данные должника</h3><p className="mt-1 text-sm text-navy-400">Сформирована по введённым данным. Перед подачей юрист проверяет реквизиты.</p></div><button type="button" onClick={() => void navigator.clipboard.writeText(header)} className="btn-ghost"><Copy className="h-4 w-4" />Копировать</button></div><pre className="mt-4 whitespace-pre-wrap rounded-xl bg-navy-50 p-4 font-sans text-sm leading-6 text-navy-700 dark:bg-white/5 dark:text-white/75">{header}</pre></section>}
     <section className="card p-6"><h3 className="font-semibold text-navy-800 dark:text-white">Документы на проверке</h3>{requests.length === 0 ? <p className="mt-3 text-sm text-navy-400">Новых документов пока нет.</p> : <div className="mt-4 space-y-4">{requests.map((request) => <div key={request.id} className="rounded-xl border border-navy-100 p-4 dark:border-white/10"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-medium text-navy-800 dark:text-white">{request.title}</p><p className="text-xs text-navy-400">{request.cases?.profiles?.full_name ?? 'Клиент'} · дело {request.cases?.case_number ?? 'ещё не присвоено'}</p></div><span className="chip bg-gold-100 text-gold-700">На проверке</span></div><p className="mt-3 text-sm text-navy-500">Файлы: {request.document_request_files.map((file) => file.file_name).join(', ') || '—'}</p><textarea value={comments[request.id] ?? ''} onChange={(event) => setComments((prev) => ({ ...prev, [request.id]: event.target.value }))} placeholder="Комментарий обязателен, если возвращаете документ" rows={2} className="input-field mt-3 resize-none" /><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => void review(request.id, true)} type="button" className="btn-primary px-4 py-2"><Check className="h-4 w-4" />Принять</button><button onClick={() => void review(request.id, false)} type="button" className="btn-ghost px-4 py-2"><RotateCcw className="h-4 w-4" />Вернуть на доработку</button></div></div>)}</div>}</section>
   </div>
+}
+
+function ClientUpdateEditor({ staffId }: { staffId: string }) {
+  const [cases, setCases] = useState<ClientCase[]>([])
+  const [caseId, setCaseId] = useState('')
+  const [tone, setTone] = useState<'good' | 'action' | 'attention'>('good')
+  const [headline, setHeadline] = useState('Делом занимаются юристы')
+  const [body, setBody] = useState('С вашей стороны сейчас ничего не требуется. Мы продолжаем работу и сообщим, если понадобится действие.')
+  const [actionLabel, setActionLabel] = useState('')
+  const [actionHref, setActionHref] = useState('')
+  const [notice, setNotice] = useState('')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => { void (async () => {
+    const { data, error: loadError } = await supabase.from('cases').select('id, case_status, profiles!cases_client_id_fkey(full_name)').order('created_at', { ascending: false })
+    if (loadError) { setError(loadError.message); return }
+    setCases(((data ?? []) as unknown as ClientCase[]).map((row) => ({ ...row, profiles: Array.isArray(row.profiles) ? row.profiles[0] ?? null : row.profiles })))
+  })() }, [])
+
+  const loadUpdate = async (nextCaseId: string) => {
+    setCaseId(nextCaseId); setNotice(''); setError('')
+    if (!nextCaseId) return
+    const { data, error: loadError } = await supabase.from('case_client_updates').select('tone, headline, body, action_label, action_href').eq('case_id', nextCaseId).maybeSingle()
+    if (loadError) { setError(loadError.message); return }
+    if (data) { setTone(data.tone as typeof tone); setHeadline(data.headline); setBody(data.body); setActionLabel(data.action_label ?? ''); setActionHref(data.action_href ?? '') }
+    else { setTone('good'); setHeadline('Делом занимаются юристы'); setBody('С вашей стороны сейчас ничего не требуется. Мы продолжаем работу и сообщим, если понадобится действие.'); setActionLabel(''); setActionHref('') }
+  }
+
+  const save = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); if (!caseId) return setError('Выберите клиента.')
+    if ((actionLabel && !actionHref) || (!actionLabel && actionHref)) return setError('Для кнопки заполните и текст, и ссылку.')
+    if (actionHref && !actionHref.startsWith('/')) return setError('Используйте внутреннюю ссылку, например /documents/collection или /contacts.')
+    setSaving(true); setError(''); setNotice('')
+    const { error: saveError } = await supabase.from('case_client_updates').upsert({ case_id: caseId, tone, headline: headline.trim(), body: body.trim(), action_label: actionLabel.trim() || null, action_href: actionHref.trim() || null, updated_by: staffId }, { onConflict: 'case_id' })
+    setSaving(false)
+    if (saveError) setError(saveError.message); else setNotice('Сводка сохранена — клиент увидит её на главном экране.')
+  }
+
+  return <section className="card p-5 sm:p-6"><div className="flex gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><CheckCircle2 className="h-5 w-5" /></span><div><h3 className="font-semibold text-navy-800 dark:text-white">Сводка для клиента</h3><p className="mt-1 text-sm text-navy-400">Первое, что клиент увидит в мобильном кабинете. Пишите коротко и простыми словами.</p></div></div>{notice && <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{notice}</p>}{error && <p className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}<form onSubmit={save} className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium text-navy-700 dark:text-white/70 sm:col-span-2">Клиент<select value={caseId} onChange={(event) => void loadUpdate(event.target.value)} className="input-field mt-1.5"><option value="">Выберите клиента</option>{cases.map((item) => <option key={item.id} value={item.id}>{item.profiles?.full_name ?? 'Без имени'} · {item.case_status}</option>)}</select></label><label className="text-sm font-medium text-navy-700 dark:text-white/70">Статус<select value={tone} onChange={(event) => setTone(event.target.value as typeof tone)} className="input-field mt-1.5"><option value="good">Всё хорошо</option><option value="action">Нужно действие клиента</option><option value="attention">Нужно внимание</option></select></label><label className="text-sm font-medium text-navy-700 dark:text-white/70">Заголовок<input value={headline} onChange={(event) => setHeadline(event.target.value)} required maxLength={90} className="input-field mt-1.5" /></label><label className="text-sm font-medium text-navy-700 dark:text-white/70 sm:col-span-2">Короткая сводка<textarea value={body} onChange={(event) => setBody(event.target.value)} required maxLength={360} rows={3} className="input-field mt-1.5 resize-none" /></label><label className="text-sm font-medium text-navy-700 dark:text-white/70">Текст кнопки (необязательно)<input value={actionLabel} onChange={(event) => setActionLabel(event.target.value)} maxLength={40} placeholder="Например: Открыть документы" className="input-field mt-1.5" /></label><label className="text-sm font-medium text-navy-700 dark:text-white/70">Ссылка кнопки<input value={actionHref} onChange={(event) => setActionHref(event.target.value)} placeholder="/documents/collection" className="input-field mt-1.5" /></label><div className="sm:col-span-2"><button disabled={saving} className="btn-primary w-full sm:w-auto">{saving ? 'Сохраняем…' : 'Сохранить сводку для клиента'}</button></div></form></section>
 }
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) { return <fieldset className="space-y-4 border-t border-navy-100 pt-6 dark:border-white/10"><legend className="px-0 text-base font-semibold text-navy-800 dark:text-white">{title}</legend>{children}</fieldset> }

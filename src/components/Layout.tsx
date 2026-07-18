@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
+import { MobileNav } from './MobileNav'
 
 const TITLES: Record<string, { title: string; subtitle: string }> = {
   '/': { title: 'Обзор дела', subtitle: 'Ключевая информация по вашей процедуре' },
@@ -69,15 +70,16 @@ export function Layout() {
             Демо-кабинет: данные и сформированные PDF являются учебными, юридической силы не имеют.
           </p>
         </div>
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 pb-24 sm:px-6 sm:py-6 lg:px-8 lg:pb-6">
           <div key={location.pathname} className="animate-fade-in">
             <Outlet />
           </div>
         </main>
-        <footer className="mx-auto w-full max-w-[1400px] px-4 py-6 text-center text-xs text-navy-300 dark:text-white/25 sm:px-6 lg:px-8">
+        <footer className="mx-auto hidden w-full max-w-[1400px] px-4 py-6 text-center text-xs text-navy-300 dark:text-white/25 sm:px-6 lg:block lg:px-8">
           © 2026 НАШ МИР · Личный кабинет клиента · Демо-версия
         </footer>
       </div>
+      <MobileNav />
     </div>
   )
 }

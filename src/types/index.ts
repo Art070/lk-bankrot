@@ -28,6 +28,17 @@ export interface Client {
   paymentProgress: number // 0-100
 }
 
+export type ClientUpdateTone = 'good' | 'action' | 'attention'
+
+export interface ClientCaseUpdate {
+  tone: ClientUpdateTone
+  headline: string
+  body: string
+  actionLabel: string | null
+  actionHref: string | null
+  updatedAt: string | null
+}
+
 export type DocumentType =
   | 'contract'
   | 'court'

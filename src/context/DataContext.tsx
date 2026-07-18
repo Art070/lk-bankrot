@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import type { AppNotification, CaseDocument, Client, Message, Payment } from '../types'
+import type { AppNotification, CaseDocument, Client, ClientCaseUpdate, Message, Payment } from '../types'
 
 interface DataContextValue {
   client: Client | null
   caseId: string | null
+  clientUpdate: ClientCaseUpdate | null
   notifications: AppNotification[]
   documents: CaseDocument[]
   messages: Message[]
@@ -27,6 +28,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [client, setClient] = useState<Client | null>(null)
   const [caseId, setCaseId] = useState<string | null>(null)
+  const [clientUpdate, setClientUpdate] = useState<ClientCaseUpdate | null>(null)
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [documents, setDocuments] = useState<CaseDocument[]>([])
   const [messages, setMessages] = useState<Message[]>([])
@@ -42,6 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (user.profile.role !== 'client') {
         setClient(null)
         setCaseId(null)
+        setClientUpdate(null)
         setNotifications([])
         setDocuments([])
         setMessages([])
@@ -82,15 +85,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
           : 0,
       })
 
-      const [docs, notifs, paymentRows, messageRows] = await Promise.all([
+      const [docs, notifs, paymentRows, messageRows, updateRow] = await Promise.all([
         supabase.from('documents').select('*').eq('case_id', caseRow.id).order('document_date', { ascending: false }),
         supabase.from('notifications').select('*').eq('client_id', user.id).order('created_at', { ascending: false }),
         supabase.from('payments').select('*').eq('case_id', caseRow.id).order('due_date'),
         supabase.from('messages').select('*, profiles!messages_author_id_fkey(full_name)').eq('case_id', caseRow.id).order('created_at'),
+        supabase.from('case_client_updates').select('tone, headline, body, action_label, action_href, updated_at').eq('case_id', caseRow.id).maybeSingle(),
       ])
-      if (docs.error || notifs.error || paymentRows.error || messageRows.error) {
-        throw docs.error ?? notifs.error ?? paymentRows.error ?? messageRows.error
+      if (docs.error || notifs.error || paymentRows.error || messageRows.error || updateRow.error) {
+        throw docs.error ?? notifs.error ?? paymentRows.error ?? messageRows.error ?? updateRow.error
       }
+
+      setClientUpdate(updateRow.data ? {
+        tone: updateRow.data.tone as ClientCaseUpdate['tone'],
+        headline: updateRow.data.headline,
+        body: updateRow.data.body,
+        actionLabel: updateRow.data.action_label,
+        actionHref: updateRow.data.action_href,
+        updatedAt: updateRow.data.updated_at,
+      } : null)
 
       setDocuments((docs.data ?? []).map((row) => ({
         id: row.id,
@@ -165,10 +178,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<DataContextValue>(() => ({
-    client, caseId, notifications, documents, messages, payments,
+    client, caseId, clientUpdate, notifications, documents, messages, payments,
     unreadCount: notifications.filter((item) => !item.read).length,
     loading, error, refresh, markNotificationRead, markAllNotificationsRead, markDocumentViewed, getDocumentUrl, sendMessage,
-  }), [caseId, client, documents, error, getDocumentUrl, loading, markAllNotificationsRead, markDocumentViewed, markNotificationRead, messages, notifications, payments, refresh, sendMessage])
+  }), [caseId, client, clientUpdate, documents, error, getDocumentUrl, loading, markAllNotificationsRead, markDocumentViewed, markNotificationRead, messages, notifications, payments, refresh, sendMessage])
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>
 }

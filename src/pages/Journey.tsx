@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { supabase } from '../lib/supabase'
+import type { ClientCaseUpdate } from '../types'
 
 type Route = 'mfc' | 'court' | 'consultation'
 type Diagnostic = { id: string; total_debt: number; creditor_count: number; has_only_home: boolean; has_car: boolean; monthly_income: number | null; enforcement_closed: boolean; route: Route; submitted_at: string }
@@ -18,7 +19,7 @@ const steps = [
 const statusIndex: Record<string, number> = { diagnostics: 0, 'document-collection': 1, filing: 2, 'mfc-procedure': 3, 'court-restructuring': 3, 'court-assets': 3, 'active-procedure': 3, completed: 4, completion: 4 }
 
 export function Journey() {
-  const { caseId, client, loading, error, refresh } = useData()
+  const { caseId, client, clientUpdate, loading, error, refresh } = useData()
   const [diagnostic, setDiagnostic] = useState<Diagnostic | null>(null)
   const [diagnosticError, setDiagnosticError] = useState('')
   const [loadingDiagnostic, setLoadingDiagnostic] = useState(true)
@@ -39,13 +40,14 @@ export function Journey() {
 
   const current = statusIndex[client.caseStatus] ?? (diagnostic ? 1 : 0)
   return <div className="mx-auto max-w-5xl space-y-6">
-    <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-navy-800 to-navy-950 p-6 text-white shadow-card sm:p-8">
-      <p className="flex items-center gap-2 text-sm text-gold-300"><Sparkles className="h-4 w-4" /> Личный маршрут по делу</p>
-      <h2 className="mt-3 text-2xl font-bold sm:text-3xl">Здравствуйте, {client.name.split(' ')[0]}!</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">Здесь только нужные действия: от первичной оценки до завершения процедуры. Предварительные решения всегда проверяет юрист.</p>
-      <div className="mt-7 grid gap-3 sm:grid-cols-5">
-        {steps.map((step, index) => { const Icon = step.icon; const active = index === current; const done = index < current; return <div key={step.key} className={`rounded-xl border p-3 ${active ? 'border-gold-300 bg-white/15' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5'}`}><div className="flex items-center gap-2"><span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${done ? 'bg-emerald-400 text-navy-900' : active ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/60'}`}>{done ? '✓' : index + 1}</span><Icon className="h-4 w-4 text-white/75" /></div><p className="mt-3 text-xs font-semibold">{step.title}</p></div> })}
+    <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-white shadow-card sm:p-8">
+      <p className="flex items-center gap-2 text-sm text-gold-300"><Sparkles className="h-4 w-4" /> Коротко о вашем деле</p>
+      <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Здравствуйте, {client.name.split(' ')[0]}!</h2>
+      <ClientStatusCard update={clientUpdate} current={current} />
+      <div className="mt-6 grid grid-cols-5 gap-2 sm:mt-7 sm:gap-3">
+        {steps.map((step, index) => { const Icon = step.icon; const active = index === current; const done = index < current; return <div key={step.key} className={`rounded-xl border p-2 sm:p-3 ${active ? 'border-gold-300 bg-white/15' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5'}`}><div className="flex items-center justify-center gap-2 sm:justify-start"><span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${done ? 'bg-emerald-400 text-navy-900' : active ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/60'}`}>{done ? '✓' : index + 1}</span><Icon className="hidden h-4 w-4 text-white/75 sm:block" /></div><p className="mt-2 hidden text-xs font-semibold sm:block">{step.title}</p></div> })}
       </div>
+      <p className="mt-3 text-center text-xs text-white/60">Этап {current + 1} из 5 · {steps[current].title}</p>
     </section>
 
     {current === 0 && !diagnostic && <DiagnosticForm caseId={caseId} onDone={(value) => { setDiagnostic(value); void refresh() }} />}
@@ -57,6 +59,19 @@ export function Journey() {
   </div>
 }
 
+function ClientStatusCard({ update, current }: { update: ClientCaseUpdate | null; current: number }) {
+  const defaultUpdate: ClientCaseUpdate = current === 0
+    ? { tone: 'action', headline: 'Нужно пройти короткую анкету', body: 'Ответьте на несколько вопросов — это поможет юристу оценить ситуацию и выбрать дальнейший маршрут.', actionLabel: 'Пройти анкету', actionHref: null, updatedAt: null }
+    : current === 1
+      ? { tone: 'action', headline: 'Нужны документы из списка', body: 'Загрузите только те документы, которые отмечены в вашем списке. Юрист проверит их и сообщит результат.', actionLabel: 'Открыть документы', actionHref: '/documents/collection', updatedAt: null }
+      : { tone: 'good', headline: 'Делом занимаются юристы', body: 'С вашей стороны сейчас ничего не требуется. Мы продолжаем работу и сообщим, если понадобится действие.', actionLabel: null, actionHref: null, updatedAt: null }
+  const status = update ?? defaultUpdate
+  const color = status.tone === 'good' ? 'border-emerald-300/30 bg-emerald-400/10' : status.tone === 'attention' ? 'border-rose-300/30 bg-rose-400/10' : 'border-gold-300/35 bg-gold-400/10'
+  const actionHref = status.actionHref || (status.actionLabel === 'Пройти анкету' ? '#diagnostic' : null)
+  const contents = <><p className="text-sm font-bold">{status.headline}</p><p className="mt-1 text-sm leading-5 text-white/75">{status.body}</p>{status.actionLabel && <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gold-200">{status.actionLabel}<ArrowRight className="h-4 w-4" /></span>}</>
+  return <div className={`mt-5 rounded-xl border p-4 ${color}`}>{actionHref ? actionHref.startsWith('/') ? <Link to={actionHref}>{contents}</Link> : <a href={actionHref}>{contents}</a> : contents}</div>
+}
+
 function DiagnosticForm({ caseId, onDone }: { caseId: string; onDone: (value: Diagnostic) => void }) {
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -66,7 +81,7 @@ function DiagnosticForm({ caseId, onDone }: { caseId: string; onDone: (value: Di
     const { data, error: saveError } = await supabase.from('client_diagnostics').upsert({ case_id: caseId, total_debt: debt, creditor_count: creditors, has_only_home: onlyHome, has_car: car, monthly_income: income || null, enforcement_closed: enforcement, route }).select('*').single()
     setBusy(false); if (saveError) setError(saveError.message); else onDone(data as Diagnostic)
   }
-  return <form onSubmit={submit} className="card max-w-3xl p-6 sm:p-7"><div className="flex gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-100 text-gold-700"><ClipboardCheck className="h-5 w-5" /></span><div><h3 className="font-bold text-navy-800 dark:text-white">Первичная консультация</h3><p className="mt-1 text-sm text-navy-500">Ответьте на несколько вопросов. Это займёт около трёх минут.</p></div></div>{error && <p className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}<div className="mt-6 grid gap-5 sm:grid-cols-2"><NumberField name="debt" label="Общая сумма долгов, ₽" min="0" required /><NumberField name="creditors" label="Количество кредиторов" min="0" required /><NumberField name="income" label="Ежемесячный доход, ₽" min="0" /><Choice name="onlyHome" label="Есть единственное жильё?" /><Choice name="car" label="Есть автомобиль или другое ценное имущество?" /><Choice name="enforcement" label="Исполнительные производства завершены?" /></div><div className="mt-6 flex flex-wrap items-center gap-3"><button disabled={busy} className="btn-primary">{busy ? 'Сохраняем…' : 'Получить предварительный маршрут'}<ArrowRight className="h-4 w-4" /></button><p className="text-xs text-navy-400">Результат предварительный и требует проверки юриста.</p></div></form>
+  return <form id="diagnostic" onSubmit={submit} className="card max-w-3xl p-5 sm:p-7"><div className="flex gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-100 text-gold-700"><ClipboardCheck className="h-5 w-5" /></span><div><h3 className="font-bold text-navy-800 dark:text-white">Первичная консультация</h3><p className="mt-1 text-sm text-navy-500">Ответьте на несколько вопросов. Это займёт около трёх минут.</p></div></div>{error && <p className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}<div className="mt-6 grid gap-5 sm:grid-cols-2"><NumberField name="debt" label="Общая сумма долгов, ₽" min="0" required /><NumberField name="creditors" label="Количество кредиторов" min="0" required /><NumberField name="income" label="Ежемесячный доход, ₽" min="0" /><Choice name="onlyHome" label="Есть единственное жильё?" /><Choice name="car" label="Есть автомобиль или другое ценное имущество?" /><Choice name="enforcement" label="Исполнительные производства завершены?" /></div><div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"><button disabled={busy} className="btn-primary w-full sm:w-auto">{busy ? 'Сохраняем…' : 'Получить предварительный маршрут'}<ArrowRight className="h-4 w-4" /></button><p className="text-xs text-navy-400">Результат предварительный и требует проверки юриста.</p></div></form>
 }
 
 function NumberField({ name, label, min, required }: { name: string; label: string; min: string; required?: boolean }) { return <label className="text-sm font-medium text-navy-700 dark:text-white/75">{label}<input className="input-field mt-1.5" name={name} type="number" min={min} required={required} /></label> }
