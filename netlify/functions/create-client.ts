@@ -38,7 +38,12 @@ export default async (request: Request) => {
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY
-  if (!url || !serviceKey || !anonKey) return json(500, { error: 'Server is not configured' })
+  const missing = [
+    !url && 'SUPABASE_URL',
+    !anonKey && 'SUPABASE_ANON_KEY',
+    !serviceKey && 'SUPABASE_SERVICE_ROLE_KEY',
+  ].filter(Boolean)
+  if (missing.length) return json(500, { error: `Server is not configured: ${missing.join(', ')}` })
 
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
   if (!token) return json(401, { error: 'Authentication required' })
