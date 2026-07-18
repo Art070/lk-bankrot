@@ -1,9 +1,10 @@
-import { LogOut, PanelLeftClose, PanelLeftOpen, UserRoundPlus, X } from 'lucide-react'
+import { GraduationCap, LogOut, PanelLeftClose, PanelLeftOpen, UserRoundPlus, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../hooks/useAuth'
 import { Logo } from './Common/Logo'
 import { NAV_ITEMS } from './nav'
+import { openAppTour } from './AppTour'
 
 interface SidebarProps {
   collapsed: boolean
@@ -141,6 +142,8 @@ export function Sidebar({
             <LogOut className="h-5 w-5 shrink-0" />
             <span className={collapsed ? 'lg:hidden' : ''}>Выйти</span>
           </button>
+
+          {user?.profile.role === 'client' && <button onClick={() => { onCloseMobile(); openAppTour() }} className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white ${collapsed ? 'lg:justify-center' : ''}`} title={collapsed ? 'Как пользоваться кабинетом' : undefined}><GraduationCap className="h-5 w-5 shrink-0" /><span className={collapsed ? 'lg:hidden' : ''}>Как пользоваться кабинетом</span></button>}
 
           <button
             onClick={onToggleCollapse}

@@ -4,6 +4,8 @@ import { useTheme } from '../hooks/useTheme'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
+import { AppTour } from './AppTour'
+import { useAuth } from '../hooks/useAuth'
 
 const TITLES: Record<string, { title: string; subtitle: string }> = {
   '/': { title: 'Обзор дела', subtitle: 'Ключевая информация по вашей процедуре' },
@@ -39,6 +41,7 @@ export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
+  const { user } = useAuth()
   const meta = TITLES[location.pathname] ?? {
     title: 'Личный кабинет',
     subtitle: '',
@@ -80,6 +83,7 @@ export function Layout() {
         </footer>
       </div>
       <MobileNav />
+      {user?.profile.role === 'client' && <AppTour clientId={user.id} />}
     </div>
   )
 }
