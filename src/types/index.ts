@@ -1,7 +1,8 @@
 export type CaseStage =
-  | 'initiation'
-  | 'creditors-meeting'
-  | 'bankruptcy-proceedings'
+  | 'diagnostics'
+  | 'document-collection'
+  | 'filing'
+  | 'active-procedure'
   | 'completion'
 
 export interface CaseStageInfo {

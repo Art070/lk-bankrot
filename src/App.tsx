@@ -13,6 +13,7 @@ import { Notifications } from './pages/Notifications'
 import { Admin } from './pages/Admin'
 import { Setup } from './pages/Setup'
 import { Onboarding } from './pages/Onboarding'
+import { Journey } from './pages/Journey'
 
 function FullScreenLoader() {
   return (
@@ -46,7 +47,8 @@ export default function App() {
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route element={<Layout />}>
           {user?.profile.role === 'client' ? <>
-            <Route path="/" element={<Onboarding />} />
+            <Route path="/" element={<Journey />} />
+            <Route path="/documents/collection" element={<Onboarding />} />
             <Route path="/overview" element={<Dashboard />} />
             <Route path="/case" element={<CasesStatus />} />
             <Route path="/finances" element={<Finances />} />

@@ -10,19 +10,24 @@ import type {
 
 export const CASE_STAGES: CaseStageInfo[] = [
   {
-    key: 'initiation',
-    label: 'Инициирование',
-    description: 'Подача заявления и принятие дела к производству',
+    key: 'diagnostics',
+    label: 'Диагностика',
+    description: 'Уточняем ситуацию и определяем предварительный маршрут',
   },
   {
-    key: 'creditors-meeting',
-    label: 'Собрание кредиторов',
-    description: 'Формирование реестра требований кредиторов',
+    key: 'document-collection',
+    label: 'Документы',
+    description: 'Собираем и проверяем персональный пакет документов',
   },
   {
-    key: 'bankruptcy-proceedings',
-    label: 'Конкурсное производство',
-    description: 'Реализация имущества и расчёты с кредиторами',
+    key: 'filing',
+    label: 'Подача',
+    description: 'Готовим заявление, оплаты и передаём пакет',
+  },
+  {
+    key: 'active-procedure',
+    label: 'Процедура',
+    description: 'Следим за событиями, сроками и задачами по делу',
   },
   {
     key: 'completion',
@@ -39,7 +44,7 @@ export const mockClient: Client = {
   inn: '772345678901',
   caseNumber: 'А40-123456/2024',
   court: 'Арбитражный суд города Москвы',
-  caseStatus: 'bankruptcy-proceedings',
+  caseStatus: 'active-procedure',
   openDate: '2024-03-15',
   nextHearing: '2026-08-20',
   totalDebt: 2500000,

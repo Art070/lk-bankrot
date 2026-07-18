@@ -1,5 +1,6 @@
 import {
   Bell,
+  ClipboardList,
   FileText,
   FileUp,
   LayoutDashboard,
@@ -16,7 +17,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Сбор документов', icon: FileUp },
+  { to: '/', label: 'Путь по делу', icon: ClipboardList },
+  { to: '/documents/collection', label: 'Сбор документов', icon: FileUp },
   { to: '/overview', label: 'Обзор', icon: LayoutDashboard },
   { to: '/case', label: 'Статус дела', icon: Scale },
   { to: '/finances', label: 'Финансы', icon: Wallet },

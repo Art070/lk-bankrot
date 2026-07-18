@@ -61,7 +61,7 @@ export default async (request: Request) => {
     client_id: invitation.user.id,
     case_number: payload.caseNumber || null,
     court: payload.court || null,
-    case_status: 'document-collection',
+    case_status: 'diagnostics',
     open_date: payload.openDate,
     next_hearing: payload.nextHearing || null,
     total_debt: payload.totalDebt ?? 0,

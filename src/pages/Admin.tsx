@@ -76,7 +76,7 @@ export function Admin() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h2 className="text-xl font-bold text-navy-800 dark:text-white">Управление клиентами</h2>
-        <p className="mt-1 text-sm text-navy-400 dark:text-white/40">Создайте дело и отправьте клиенту безопасное приглашение на email.</p>
+        <p className="mt-1 text-sm text-navy-400 dark:text-white/40">Создайте карточку клиента и отправьте безопасное приглашение. Работа начнётся с диагностики, а номер дела и суд можно добавить позже.</p>
       </div>
       <form onSubmit={submit} className="card space-y-5 p-6">
         <h3 className="flex items-center gap-2 font-semibold text-navy-800 dark:text-white"><UserPlus className="h-5 w-5 text-gold-500" /> Новый клиент</h3>
@@ -89,7 +89,7 @@ export function Admin() {
           <Field name="inn" label="ИНН" />
           <Field name="caseNumber" label="Номер дела (если уже есть)" />
           <Field name="court" label="Суд (если уже известен)" />
-          <Field name="openDate" label="Дата открытия" type="date" required />
+          <Field name="openDate" label="Дата создания карточки" type="date" required />
           <Field name="nextHearing" label="Следующее заседание" type="date" />
           <Field name="totalDebt" label="Долг перед кредиторами, ₽" type="number" />
           <Field name="contractTotal" label="Сумма договора, ₽" type="number" />

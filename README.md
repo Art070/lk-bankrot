@@ -70,8 +70,10 @@ src/
 ### Первичная настройка
 
 1. Создайте проект в Supabase.
-2. В SQL Editor выполните содержимое
-   `supabase/migrations/20260718_initial_schema.sql`.
+2. В SQL Editor выполните миграции по порядку:
+   `supabase/migrations/20260718_initial_schema.sql`, затем
+   `supabase/migrations/20260718_document_onboarding.sql` и
+   `supabase/migrations/20260718_client_journey.sql`.
 3. В Supabase → Authentication → URL Configuration добавьте URL сайта:
    `https://lk-bankrot.netlify.app`. Включите вход по email и настройте
    подтверждение email.
