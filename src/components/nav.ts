@@ -1,10 +1,7 @@
 import {
   Bell,
   ClipboardList,
-  FileText,
   FileUp,
-  LayoutDashboard,
-  Scale,
   Users,
   Wallet,
   type LucideIcon,
@@ -17,12 +14,9 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Путь по делу', icon: ClipboardList },
-  { to: '/documents/collection', label: 'Сбор документов', icon: FileUp },
-  { to: '/overview', label: 'Обзор', icon: LayoutDashboard },
-  { to: '/case', label: 'Статус дела', icon: Scale },
+  { to: '/', label: 'Главная', icon: ClipboardList },
+  { to: '/documents/collection', label: 'Документы', icon: FileUp },
   { to: '/finances', label: 'Финансы', icon: Wallet },
-  { to: '/documents', label: 'Документы', icon: FileText },
-  { to: '/notifications', label: 'Уведомления', icon: Bell },
-  { to: '/contacts', label: 'Контакты', icon: Users },
+  { to: '/notifications', label: 'События', icon: Bell },
+  { to: '/contacts', label: 'Чат с юристом', icon: Users },
 ]

@@ -1,22 +1,14 @@
-import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Gavel, Landmark, MessageCircle, ShieldAlert, Sparkles } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Gavel, MessageCircle, ShieldAlert, Sparkles } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { supabase } from '../lib/supabase'
 import type { ClientCaseUpdate } from '../types'
+import { formatDate } from '../lib/format'
+import { getStageUpdate, STAGES, STATUS_TO_STAGE } from '../lib/stages'
 
 type Route = 'mfc' | 'court' | 'consultation'
 type Diagnostic = { id: string; total_debt: number; creditor_count: number; has_only_home: boolean; has_car: boolean; monthly_income: number | null; enforcement_closed: boolean; route: Route; submitted_at: string }
-
-const steps = [
-  { key: 'diagnostics', title: 'Входная диагностика', text: 'Уточняем ситуацию и маршрут', icon: ClipboardCheck },
-  { key: 'document-collection', title: 'Сбор документов', text: 'Собираем и проверяем пакет', icon: FileText },
-  { key: 'filing', title: 'Подача заявления', text: 'Готовим и направляем документы', icon: Gavel },
-  { key: 'active-procedure', title: 'Активная процедура', text: 'Следим за сроками и событиями', icon: Landmark },
-  { key: 'completion', title: 'Завершение', text: 'Архив и памятка после процедуры', icon: CheckCircle2 },
-] as const
-
-const statusIndex: Record<string, number> = { diagnostics: 0, 'document-collection': 1, filing: 2, 'mfc-procedure': 3, 'court-restructuring': 3, 'court-assets': 3, 'active-procedure': 3, completed: 4, completion: 4 }
 
 export function Journey() {
   const { caseId, client, clientUpdate, loading, error, refresh } = useData()
@@ -38,16 +30,18 @@ export function Journey() {
   if (!caseId || !client) return <p className="text-sm text-rose-600">{error ?? 'Для аккаунта пока не создано дело.'}</p>
   if (diagnosticError) return <div className="card max-w-2xl p-6"><p className="font-semibold text-navy-800 dark:text-white">Маршрут подключается</p><p className="mt-2 text-sm text-navy-500">Нужно применить обновление базы данных в Supabase, чтобы сохранить анкету и этапы.</p></div>
 
-  const current = statusIndex[client.caseStatus] ?? (diagnostic ? 1 : 0)
+  const current = STATUS_TO_STAGE[client.caseStatus] ?? (diagnostic ? 1 : 0)
+  const greeting = greetingName(client.name)
   return <div className="mx-auto max-w-5xl space-y-6">
     <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-white shadow-card sm:p-8">
       <p className="flex items-center gap-2 text-sm text-gold-300"><Sparkles className="h-4 w-4" /> Коротко о вашем деле</p>
-      <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Здравствуйте, {client.name.split(' ')[0]}!</h2>
+      <p className="mt-3 text-xs text-white/60">Сегодня, {formatDate(new Date().toISOString())}</p>
+      <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Здравствуйте, {greeting}!</h2>
       <ClientStatusCard update={clientUpdate} current={current} />
       <div className="mt-6 grid grid-cols-5 gap-2 sm:mt-7 sm:gap-3">
-        {steps.map((step, index) => { const Icon = step.icon; const active = index === current; const done = index < current; return <div key={step.key} className={`rounded-xl border p-2 sm:p-3 ${active ? 'border-gold-300 bg-white/15' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5'}`}><div className="flex items-center justify-center gap-2 sm:justify-start"><span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${done ? 'bg-emerald-400 text-navy-900' : active ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/60'}`}>{done ? '✓' : index + 1}</span><Icon className="hidden h-4 w-4 text-white/75 sm:block" /></div><p className="mt-2 hidden text-xs font-semibold sm:block">{step.title}</p></div> })}
+        {STAGES.map((step, index) => { const Icon = step.icon; const active = index === current; const done = index < current; return <div key={step.key} className={`rounded-xl border p-2 sm:p-3 ${active ? 'border-gold-300 bg-white/15' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5'}`}><div className="flex items-center justify-center gap-2 sm:justify-start"><span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${done ? 'bg-emerald-400 text-navy-900' : active ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/60'}`}>{done ? '✓' : index + 1}</span><Icon className="hidden h-4 w-4 text-white/75 sm:block" /></div><p className="mt-2 hidden text-xs font-semibold sm:block">{step.shortTitle}</p></div> })}
       </div>
-      <p className="mt-3 text-center text-xs text-white/60">Этап {current + 1} из 5 · {steps[current].title}</p>
+      <p className="mt-3 text-center text-xs text-white/60">Этап {current + 1} из 5 · {STAGES[current].title}</p>
     </section>
 
     {current === 0 && !diagnostic && <DiagnosticForm caseId={caseId} onDone={(value) => { setDiagnostic(value); void refresh() }} />}
@@ -60,16 +54,17 @@ export function Journey() {
 }
 
 function ClientStatusCard({ update, current }: { update: ClientCaseUpdate | null; current: number }) {
-  const defaultUpdate: ClientCaseUpdate = current === 0
-    ? { tone: 'action', headline: 'Нужно пройти короткую анкету', body: 'Ответьте на несколько вопросов — это поможет юристу оценить ситуацию и выбрать дальнейший маршрут.', actionLabel: 'Пройти анкету', actionHref: null, updatedAt: null }
-    : current === 1
-      ? { tone: 'action', headline: 'Нужны документы из списка', body: 'Загрузите только те документы, которые отмечены в вашем списке. Юрист проверит их и сообщит результат.', actionLabel: 'Открыть документы', actionHref: '/documents/collection', updatedAt: null }
-      : { tone: 'good', headline: 'Делом занимаются юристы', body: 'С вашей стороны сейчас ничего не требуется. Мы продолжаем работу и сообщим, если понадобится действие.', actionLabel: null, actionHref: null, updatedAt: null }
+  const defaultUpdate = getStageUpdate(STAGES[current].key)
   const status = update ?? defaultUpdate
   const color = status.tone === 'good' ? 'border-emerald-300/30 bg-emerald-400/10' : status.tone === 'attention' ? 'border-rose-300/30 bg-rose-400/10' : 'border-gold-300/35 bg-gold-400/10'
   const actionHref = status.actionHref || (status.actionLabel === 'Пройти анкету' ? '#diagnostic' : null)
   const contents = <><p className="text-sm font-bold">{status.headline}</p><p className="mt-1 text-sm leading-5 text-white/75">{status.body}</p>{status.actionLabel && <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gold-200">{status.actionLabel}<ArrowRight className="h-4 w-4" /></span>}</>
   return <div className={`mt-5 rounded-xl border p-4 ${color}`}>{actionHref ? actionHref.startsWith('/') ? <Link to={actionHref}>{contents}</Link> : <a href={actionHref}>{contents}</a> : contents}</div>
+}
+
+function greetingName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean)
+  return parts.length >= 3 ? `${parts[1]} ${parts[2]}` : parts[0] ?? 'клиент'
 }
 
 function DiagnosticForm({ caseId, onDone }: { caseId: string; onDone: (value: Diagnostic) => void }) {
