@@ -10,6 +10,8 @@ import { Documents } from './pages/Documents'
 import { Finances } from './pages/Finances'
 import { Login } from './pages/Login'
 import { Notifications } from './pages/Notifications'
+import { Admin } from './pages/Admin'
+import { Setup } from './pages/Setup'
 
 function FullScreenLoader() {
   return (
@@ -23,9 +25,10 @@ function FullScreenLoader() {
 }
 
 export default function App() {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, configured, user } = useAuth()
 
   if (loading) return <FullScreenLoader />
+  if (!configured) return <Setup />
 
   if (!isAuthenticated) {
     return (
@@ -41,12 +44,15 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/case" element={<CasesStatus />} />
-          <Route path="/finances" element={<Finances />} />
-          <Route path="/documents" element={<Documents />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/contacts" element={<Contacts />} />
+          {user?.profile.role === 'client' ? <>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/case" element={<CasesStatus />} />
+            <Route path="/finances" element={<Finances />} />
+            <Route path="/documents" element={<Documents />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/contacts" element={<Contacts />} />
+          </> : <Route path="/" element={<Admin />} />}
+          {(user?.profile.role === 'admin' || user?.profile.role === 'manager') && <Route path="/admin" element={<Admin />} />}
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

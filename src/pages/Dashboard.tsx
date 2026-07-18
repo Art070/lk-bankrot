@@ -12,7 +12,6 @@ import { FinanceCard } from '../components/Cards/FinanceCard'
 import { StatusCard } from '../components/Cards/StatusCard'
 import { StatTile } from '../components/Common/StatTile'
 import { useData } from '../context/DataContext'
-import { useAuth } from '../hooks/useAuth'
 import { formatCurrency, formatDate, formatDateTime, relativeTime } from '../lib/format'
 
 const NOTIF_ICON = {
@@ -23,9 +22,9 @@ const NOTIF_ICON = {
 } as const
 
 export function Dashboard() {
-  const { user } = useAuth()
-  const { notifications, documents, payments, unreadCount } = useData()
-  const client = user!.client
+  const { client, notifications, documents, payments, unreadCount, loading, error } = useData()
+  if (loading) return <p className="text-sm text-navy-400">Загружаем данные дела…</p>
+  if (!client) return <p className="text-sm text-rose-600">{error ?? 'Данные дела недоступны'}</p>
 
   const nextPayment = payments.find((p) => p.status === 'upcoming')
   const unreadDocs = documents.filter((d) => !d.viewedAt).length

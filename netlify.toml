@@ -5,10 +5,12 @@
 [build.environment]
   NODE_VERSION = "20"
 
+[functions]
+  directory = "netlify/functions"
+
 # React Router handles these client-side routes. Netlify must always serve the
 # application shell instead of returning its own 404 page on a direct visit.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-

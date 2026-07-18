@@ -60,3 +60,57 @@ src/
 - Фон: `#f7f9fc` / тёмный `#0b1728`
 
 > Демонстрационное приложение. Все данные вымышленные.
+
+## Подключение реального кабинета
+
+Приложение использует Supabase для авторизации, базы данных и защищённого
+хранилища документов. Netlify отвечает за публикацию фронтенда и серверную
+функцию, которая отправляет приглашения новым клиентам.
+
+### Первичная настройка
+
+1. Создайте проект в Supabase.
+2. В SQL Editor выполните содержимое
+   `supabase/migrations/20260718_initial_schema.sql`.
+3. В Supabase → Authentication → URL Configuration добавьте URL сайта:
+   `https://lk-bankrot.netlify.app`. Включите вход по email и настройте
+   подтверждение email.
+4. Создайте первого пользователя-сотрудника в Supabase → Authentication → Users.
+   Затем выполните в SQL Editor, заменив email:
+
+   ```sql
+   update public.profiles
+   set role = 'admin'
+   where id = (select id from auth.users where email = 'your-email@example.com');
+   ```
+
+5. В Netlify → Project configuration → Environment variables добавьте:
+
+   ```text
+   VITE_SUPABASE_URL              https://<project-ref>.supabase.co
+   VITE_SUPABASE_ANON_KEY         <public anon key>
+   SUPABASE_URL                   https://<project-ref>.supabase.co
+   SUPABASE_ANON_KEY              <public anon key>
+   SUPABASE_SERVICE_ROLE_KEY      <server-only secret key>
+   SITE_URL                       https://lk-bankrot.netlify.app
+   ```
+
+   Первые две переменные доступны браузеру. `SUPABASE_SERVICE_ROLE_KEY` —
+   серверный секрет: его нельзя добавлять в GitHub, `.env` или Vite-переменные.
+
+6. Запустите в Netlify **Clear cache and deploy site**.
+
+После входа под пользователем с ролью `admin` или `manager` открывается
+админ-раздел. В нём создайте клиента и дело: Supabase отправит клиенту
+приглашение для установки пароля.
+
+### Локальная разработка
+
+```bash
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Для работы функции приглашения локально нужны серверные переменные Supabase.
+В production они задаются только в Netlify.

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { StageStepper } from '../components/Common/StageStepper'
-import { useAuth } from '../hooks/useAuth'
+import { useData } from '../context/DataContext'
 import { formatCurrency, formatDate, relativeTime } from '../lib/format'
 import { downloadCaseSummaryPdf } from '../lib/pdf'
 
@@ -41,8 +41,9 @@ function InfoRow({
 }
 
 export function CasesStatus() {
-  const { user } = useAuth()
-  const client = user!.client
+  const { client, loading, error } = useData()
+  if (loading) return <p className="text-sm text-navy-400">Загружаем статус дела…</p>
+  if (!client) return <p className="text-sm text-rose-600">{error ?? 'Данные дела недоступны'}</p>
   const [downloading, setDownloading] = useState(false)
 
   const handleDownload = async () => {

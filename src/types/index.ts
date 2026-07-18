@@ -83,3 +83,13 @@ export interface Message {
   text: string
   date: string // ISO datetime
 }
+
+export type AppRole = 'admin' | 'manager' | 'client'
+
+export interface Profile {
+  id: string
+  fullName: string
+  role: AppRole
+  phone: string | null
+  inn: string | null
+}

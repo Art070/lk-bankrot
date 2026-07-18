@@ -26,6 +26,10 @@ const TITLES: Record<string, { title: string; subtitle: string }> = {
     title: 'Контакты',
     subtitle: 'Ваш куратор и обратная связь',
   },
+  '/admin': {
+    title: 'Управление клиентами',
+    subtitle: 'Создание клиентов, дел и приглашений',
+  },
 }
 
 export function Layout() {

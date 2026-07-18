@@ -10,9 +10,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useData } from '../../context/DataContext'
-import { useAuth } from '../../hooks/useAuth'
 import { formatDate } from '../../lib/format'
-import { downloadDocumentPdf } from '../../lib/pdf'
 import type { CaseDocument, DocumentType } from '../../types'
 
 const TYPE_META: Record<
@@ -42,8 +40,7 @@ const TYPE_META: Record<
 }
 
 export function DocumentCard({ doc }: { doc: CaseDocument }) {
-  const { markDocumentViewed } = useData()
-  const { user } = useAuth()
+  const { markDocumentViewed, getDocumentUrl } = useData()
   const [downloading, setDownloading] = useState(false)
   const meta = TYPE_META[doc.type]
   const Icon = meta.icon
@@ -52,10 +49,15 @@ export function DocumentCard({ doc }: { doc: CaseDocument }) {
   const handleDownload = async () => {
     if (downloading) return
     setDownloading(true)
+    const target = window.open('', '_blank')
     try {
-      await downloadDocumentPdf(doc, user!.client)
-      markDocumentViewed(doc.id)
+      if (!doc.url) throw new Error('Файл документа не найден')
+      const url = await getDocumentUrl(doc.url)
+      if (target) target.location.href = url
+      else window.location.assign(url)
+      await markDocumentViewed(doc.id)
     } finally {
+      if (!doc.url) target?.close()
       setDownloading(false)
     }
   }

@@ -1,4 +1,4 @@
-import { LogOut, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { LogOut, PanelLeftClose, PanelLeftOpen, UserRoundPlus, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../hooks/useAuth'
@@ -20,6 +20,9 @@ export function Sidebar({
 }: SidebarProps) {
   const { logout, user } = useAuth()
   const { unreadCount } = useData()
+  const items = user?.profile.role === 'client'
+    ? NAV_ITEMS
+    : [{ to: '/', label: 'Клиенты', icon: UserRoundPlus }]
 
   return (
     <>
@@ -53,7 +56,7 @@ export function Sidebar({
 
         {/* Nav */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {NAV_ITEMS.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon
             const isNotif = item.to === '/notifications'
             return (
@@ -112,7 +115,7 @@ export function Sidebar({
             }`}
           >
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gold-400 text-sm font-bold text-navy-900">
-              {user?.client.name
+              {user?.profile.fullName
                 .split(' ')
                 .slice(0, 2)
                 .map((p) => p[0])
@@ -120,10 +123,10 @@ export function Sidebar({
             </div>
             <div className={`min-w-0 leading-tight ${collapsed ? 'lg:hidden' : ''}`}>
               <div className="truncate text-sm font-semibold">
-                {user?.client.name.split(' ').slice(0, 2).join(' ')}
+                {user?.profile.fullName.split(' ').slice(0, 2).join(' ')}
               </div>
               <div className="truncate text-xs text-white/45">
-                Дело {user?.client.caseNumber}
+                {user?.profile.role === 'client' ? 'Клиент' : 'Сотрудник'}
               </div>
             </div>
           </div>

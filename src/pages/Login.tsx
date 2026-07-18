@@ -2,7 +2,6 @@ import { AlertCircle, Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Common/Logo'
-import { DEMO_CREDENTIALS } from '../data/mockData'
 import { useAuth } from '../hooks/useAuth'
 
 export function Login() {
@@ -15,7 +14,7 @@ export function Login() {
   const [loading, setLoading] = useState(false)
   const [touched, setTouched] = useState(false)
 
-  const loginError = touched && !loginValue.trim() ? 'Введите логин' : ''
+  const loginError = touched && !loginValue.trim() ? 'Введите email' : ''
   const passwordError =
     touched && password.length < 4 ? 'Минимум 4 символа' : ''
 
@@ -33,12 +32,6 @@ export function Login() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const fillDemo = () => {
-    setLoginValue(DEMO_CREDENTIALS.login)
-    setPassword(DEMO_CREDENTIALS.password)
-    setError('')
   }
 
   return (
@@ -106,17 +99,17 @@ export function Login() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-navy-700">
-                Логин
+                Email
               </label>
               <div className="relative">
                 <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-300" />
                 <input
-                  type="text"
+                  type="email"
                   autoComplete="username"
                   value={loginValue}
                   onChange={(e) => setLoginValue(e.target.value)}
                   onBlur={() => setTouched(true)}
-                  placeholder="Ваш логин"
+                  placeholder="name@example.com"
                   className={`input-field pl-10 ${
                     loginError ? 'border-rose-300 focus:ring-rose-100' : ''
                   }`}
@@ -173,16 +166,6 @@ export function Login() {
             </button>
           </form>
 
-          <button
-            onClick={fillDemo}
-            className="mt-4 w-full rounded-xl border border-dashed border-navy-200 bg-white/60 px-4 py-3 text-left text-xs text-navy-500 transition-colors hover:border-gold-300 hover:bg-gold-50"
-          >
-            <span className="font-semibold text-navy-700">Демо-доступ:</span>{' '}
-            логин <code className="rounded bg-navy-100 px-1">{DEMO_CREDENTIALS.login}</code>{' '}
-            / пароль{' '}
-            <code className="rounded bg-navy-100 px-1">{DEMO_CREDENTIALS.password}</code>
-            <span className="ml-1 text-gold-600">— нажмите, чтобы заполнить</span>
-          </button>
         </div>
       </div>
     </div>

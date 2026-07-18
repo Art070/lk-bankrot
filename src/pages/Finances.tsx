@@ -12,7 +12,6 @@ import { useState } from 'react'
 import { ProgressBar } from '../components/Common/ProgressBar'
 import { StatTile } from '../components/Common/StatTile'
 import { useData } from '../context/DataContext'
-import { useAuth } from '../hooks/useAuth'
 import { formatCurrency, formatDate } from '../lib/format'
 import { downloadPaymentsPdf } from '../lib/pdf'
 import type { PaymentStatus } from '../types'
@@ -39,9 +38,9 @@ const STATUS_META: Record<
 }
 
 export function Finances() {
-  const { user } = useAuth()
-  const { payments } = useData()
-  const client = user!.client
+  const { client, payments, loading, error } = useData()
+  if (loading) return <p className="text-sm text-navy-400">Загружаем финансы…</p>
+  if (!client) return <p className="text-sm text-rose-600">{error ?? 'Данные дела недоступны'}</p>
   const [downloading, setDownloading] = useState(false)
 
   const handleDownloadPdf = async () => {
