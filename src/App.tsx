@@ -14,6 +14,7 @@ import { Admin } from './pages/Admin'
 import { Setup } from './pages/Setup'
 import { Onboarding } from './pages/Onboarding'
 import { Journey } from './pages/Journey'
+import { ActivateAccount } from './pages/ActivateAccount'
 
 function FullScreenLoader() {
   return (
@@ -29,13 +30,15 @@ function FullScreenLoader() {
 export default function App() {
   const { isAuthenticated, loading, configured, user } = useAuth()
 
-  if (loading) return <FullScreenLoader />
   if (!configured) return <Setup />
+  if (window.location.pathname === '/activate') return <ActivateAccount />
+  if (loading) return <FullScreenLoader />
 
   if (!isAuthenticated) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/activate" element={<ActivateAccount />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     )

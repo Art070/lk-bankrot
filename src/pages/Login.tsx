@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Common/Logo'
 import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 
 export function Login() {
   const { login } = useAuth()
@@ -13,6 +14,7 @@ export function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [touched, setTouched] = useState(false)
+  const [notice, setNotice] = useState('')
 
   const loginError = touched && !loginValue.trim() ? 'Введите email' : ''
   const passwordError =
@@ -32,6 +34,19 @@ export function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const requestPasswordReset = async () => {
+    setError('')
+    setNotice('')
+    if (!loginValue.trim()) return setError('Введите email, чтобы получить ссылку для создания пароля.')
+    setLoading(true)
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(loginValue.trim(), {
+      redirectTo: `${window.location.origin}/activate`,
+    })
+    setLoading(false)
+    if (resetError) setError(resetError.message)
+    else setNotice('Если аккаунт существует, письмо со ссылкой для создания пароля отправлено на указанный email.')
   }
 
   return (
@@ -95,6 +110,7 @@ export function Login() {
               {error}
             </div>
           )}
+          {notice && <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div>}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
             <div>
@@ -163,6 +179,9 @@ export function Login() {
               ) : (
                 'Войти'
               )}
+            </button>
+            <button type="button" disabled={loading} onClick={() => void requestPasswordReset()} className="w-full text-sm font-medium text-navy-500 hover:text-navy-800">
+              Создать или восстановить пароль
             </button>
           </form>
 

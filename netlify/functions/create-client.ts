@@ -67,9 +67,9 @@ export default async (request: Request) => {
 
   const { data: invitation, error: inviteError } = await admin.auth.admin.inviteUserByEmail(payload.email, {
     data: { full_name: payload.fullName, role: 'client' },
-    redirectTo: process.env.SITE_URL,
+    redirectTo: `${process.env.SITE_URL}/activate`,
   })
-  if (inviteError || !invitation.user) return json(400, { error: inviteError?.message ?? 'Unable to invite client' })
+  if (inviteError || !invitation.user) return json(400, { error: inviteError?.message === 'User already registered' ? 'На этот email уже создан аккаунт. Используйте другой email или отправьте клиенту восстановление пароля.' : inviteError?.message ?? 'Unable to invite client' })
 
   const { error: profileError } = await admin.from('profiles').update({ phone: payload.phone }).eq('id', invitation.user.id)
   if (profileError) return json(400, { error: profileError.message })
