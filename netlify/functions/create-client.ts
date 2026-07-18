@@ -3,15 +3,26 @@ import { createClient } from '@supabase/supabase-js'
 interface CreateClientPayload {
   email: string
   fullName: string
-  phone?: string
-  inn?: string
-  caseNumber: string
-  court: string
-  openDate: string
-  nextHearing?: string
+  phone: string
+  birthDate: string
+  birthPlace: string
+  passportSeries: string
+  passportNumber: string
+  passportIssuedBy: string
+  passportIssuedDate: string
+  passportDepartmentCode?: string
+  registrationPostcode?: string
+  registrationRegion: string
+  registrationCity?: string
+  registrationLocality?: string
+  registrationStreet: string
+  registrationBuilding: string
+  registrationApartment?: string
+  residenceAddress?: string
+  maritalStatus?: string
+  employmentStatus?: string
+  isIndividualEntrepreneur?: boolean
   totalDebt?: number
-  contractTotal?: number
-  remainingPayment?: number
 }
 
 const json = (statusCode: number, body: unknown) => ({
@@ -44,7 +55,7 @@ export default async (request: Request) => {
   if (!caller || !['admin', 'manager'].includes(caller.role)) return json(403, { error: 'Forbidden' })
 
   const payload = await request.json() as CreateClientPayload
-  if (!payload.email || !payload.fullName || !payload.openDate) {
+  if (!payload.email || !payload.fullName || !payload.phone || !payload.birthDate || !payload.birthPlace || !payload.passportSeries || !payload.passportNumber || !payload.passportIssuedBy || !payload.passportIssuedDate || !payload.registrationRegion || !payload.registrationStreet || !payload.registrationBuilding) {
     return json(400, { error: 'Fill in all required fields' })
   }
 
@@ -54,28 +65,49 @@ export default async (request: Request) => {
   })
   if (inviteError || !invitation.user) return json(400, { error: inviteError?.message ?? 'Unable to invite client' })
 
-  const { error: profileError } = await admin.from('profiles').update({ phone: payload.phone ?? null, inn: payload.inn ?? null }).eq('id', invitation.user.id)
+  const { error: profileError } = await admin.from('profiles').update({ phone: payload.phone }).eq('id', invitation.user.id)
   if (profileError) return json(400, { error: profileError.message })
 
   const { data: createdCase, error: caseError } = await admin.from('cases').insert({
     client_id: invitation.user.id,
-    case_number: payload.caseNumber || null,
-    court: payload.court || null,
     case_status: 'diagnostics',
-    open_date: payload.openDate,
-    next_hearing: payload.nextHearing || null,
+    open_date: new Date().toISOString().slice(0, 10),
     total_debt: payload.totalDebt ?? 0,
-    contract_total: payload.contractTotal ?? 0,
-    remaining_payment: payload.remainingPayment ?? 0,
+    contract_total: 0,
+    remaining_payment: 0,
   }).select('id').single()
   if (caseError) return json(400, { error: caseError.message })
 
-  const { error: requestsError } = await admin.from('document_requests').insert([
+  const { error: detailsError } = await admin.from('client_details').insert({
+    client_id: invitation.user.id,
+    birth_date: payload.birthDate,
+    birth_place: payload.birthPlace,
+    passport_series: payload.passportSeries,
+    passport_number: payload.passportNumber,
+    passport_issued_by: payload.passportIssuedBy,
+    passport_issued_date: payload.passportIssuedDate,
+    passport_department_code: payload.passportDepartmentCode || null,
+    registration_postcode: payload.registrationPostcode || null,
+    registration_region: payload.registrationRegion,
+    registration_city: payload.registrationCity || null,
+    registration_locality: payload.registrationLocality || null,
+    registration_street: payload.registrationStreet,
+    registration_building: payload.registrationBuilding,
+    registration_apartment: payload.registrationApartment || null,
+    residence_address: payload.residenceAddress || null,
+    marital_status: payload.maritalStatus || null,
+    employment_status: payload.employmentStatus || null,
+    is_individual_entrepreneur: Boolean(payload.isIndividualEntrepreneur),
+  })
+  if (detailsError) return json(400, { error: detailsError.message })
+
+  const { data: requests, error: requestsError } = await admin.from('document_requests').insert([
     { case_id: createdCase.id, title: 'Паспорт гражданина РФ', description: 'Сфотографируйте или загрузите читаемые развороты и страницы с отметками. Можно добавить до 15 фото или один PDF.', max_files: 15, required: true },
     { case_id: createdCase.id, title: 'СНИЛС', description: 'Загрузите фото или скан СНИЛС с обеих сторон, если данные есть на документе.', max_files: 4, required: true },
+    { case_id: createdCase.id, title: 'Договор с клиентом', description: 'Подписанный договор на сопровождение процедуры.', max_files: 3, required: true },
     { case_id: createdCase.id, title: 'Справка о доходах', description: 'Пришлите последнюю доступную справку или выписку. Если документа нет — напишите об этом юристу в комментарии.', max_files: 10, required: true },
-  ])
+  ]).select('id, title')
   if (requestsError) return json(400, { error: requestsError.message })
 
-  return json(201, { clientId: invitation.user.id })
+  return json(201, { clientId: invitation.user.id, caseId: createdCase.id, documentRequests: requests ?? [] })
 }
