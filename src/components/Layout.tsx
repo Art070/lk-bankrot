@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar'
 
 const TITLES: Record<string, { title: string; subtitle: string }> = {
   '/': { title: 'Обзор дела', subtitle: 'Ключевая информация по вашей процедуре' },
+  '/overview': { title: 'Обзор дела', subtitle: 'Ключевая информация по вашей процедуре' },
   '/case': {
     title: 'Статус дела',
     subtitle: 'Этапы процедуры банкротства и реквизиты',

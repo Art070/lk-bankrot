@@ -1,5 +1,5 @@
-import { AlertCircle, CheckCircle2, Plus, UserPlus } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { AlertCircle, CheckCircle2, Check, Plus, RotateCcw, UserPlus } from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 
@@ -8,6 +8,33 @@ export function Admin() {
   const [sending, setSending] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
+  const [requests, setRequests] = useState<{ id: string; title: string; status: string; reviewer_comment: string | null; cases: { case_number: string; profiles: { full_name: string } | null } | null; document_request_files: { id: string; file_name: string }[] }[]>([])
+  const [comments, setComments] = useState<Record<string, string>>({})
+
+  const loadRequests = async () => {
+    const { data } = await supabase
+      .from('document_requests')
+      .select('id, title, status, reviewer_comment, cases!document_requests_case_id_fkey(case_number, profiles!cases_client_id_fkey(full_name)), document_request_files(id, file_name)')
+      .in('status', ['submitted', 'under_review'])
+      .order('submitted_at')
+    setRequests(((data ?? []) as unknown as typeof requests).map((request) => {
+      const caseRow = Array.isArray((request as any).cases) ? (request as any).cases[0] ?? null : request.cases
+      return { ...request, cases: caseRow && { ...caseRow, profiles: Array.isArray(caseRow.profiles) ? caseRow.profiles[0] ?? null : caseRow.profiles } }
+    }))
+  }
+  useEffect(() => { void loadRequests() }, [])
+
+  const review = async (id: string, accepted: boolean) => {
+    const comment = comments[id]?.trim()
+    if (!accepted && !comment) return setError('Укажите клиенту, что нужно исправить.')
+    const { error: reviewError } = await supabase.from('document_requests').update({
+      status: accepted ? 'accepted' : 'returned',
+      reviewer_comment: accepted ? null : comment,
+      reviewed_at: new Date().toISOString(),
+    }).eq('id', id)
+    if (reviewError) setError(reviewError.message)
+    else { setNotice(accepted ? 'Документ принят.' : 'Документ возвращён клиенту с комментарием.'); await loadRequests() }
+  }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -70,6 +97,10 @@ export function Admin() {
         </div>
         <button disabled={sending} className="btn-primary"><Plus className="h-4 w-4" />{sending ? 'Создаём…' : 'Создать клиента и отправить приглашение'}</button>
       </form>
+      <section className="card p-6">
+        <h3 className="font-semibold text-navy-800 dark:text-white">Документы на проверке</h3>
+        {requests.length === 0 ? <p className="mt-3 text-sm text-navy-400">Новых документов пока нет.</p> : <div className="mt-4 space-y-4">{requests.map((request) => <div key={request.id} className="rounded-xl border border-navy-100 p-4 dark:border-white/10"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-medium text-navy-800 dark:text-white">{request.title}</p><p className="text-xs text-navy-400">{request.cases?.profiles?.full_name ?? 'Клиент'} · дело {request.cases?.case_number}</p></div><span className="chip bg-gold-100 text-gold-700">На проверке</span></div><p className="mt-3 text-sm text-navy-500">Файлы: {request.document_request_files.map((file) => file.file_name).join(', ') || '—'}</p><textarea value={comments[request.id] ?? ''} onChange={(event) => setComments((prev) => ({ ...prev, [request.id]: event.target.value }))} placeholder="Комментарий обязателен, если возвращаете документ" rows={2} className="input-field mt-3 resize-none" /><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => void review(request.id, true)} type="button" className="btn-primary px-4 py-2"><Check className="h-4 w-4" />Принять</button><button onClick={() => void review(request.id, false)} type="button" className="btn-ghost px-4 py-2"><RotateCcw className="h-4 w-4" />Вернуть на доработку</button></div></div>)}</div>}
+      </section>
     </div>
   )
 }

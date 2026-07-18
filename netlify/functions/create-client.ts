@@ -57,7 +57,7 @@ export default async (request: Request) => {
   const { error: profileError } = await admin.from('profiles').update({ phone: payload.phone ?? null, inn: payload.inn ?? null }).eq('id', invitation.user.id)
   if (profileError) return json(400, { error: profileError.message })
 
-  const { error: caseError } = await admin.from('cases').insert({
+  const { data: createdCase, error: caseError } = await admin.from('cases').insert({
     client_id: invitation.user.id,
     case_number: payload.caseNumber,
     court: payload.court,
@@ -66,8 +66,15 @@ export default async (request: Request) => {
     total_debt: payload.totalDebt ?? 0,
     contract_total: payload.contractTotal ?? 0,
     remaining_payment: payload.remainingPayment ?? 0,
-  })
+  }).select('id').single()
   if (caseError) return json(400, { error: caseError.message })
+
+  const { error: requestsError } = await admin.from('document_requests').insert([
+    { case_id: createdCase.id, title: 'Паспорт гражданина РФ', description: 'Сфотографируйте или загрузите читаемые развороты и страницы с отметками. Можно добавить до 15 фото или один PDF.', max_files: 15, required: true },
+    { case_id: createdCase.id, title: 'СНИЛС', description: 'Загрузите фото или скан СНИЛС с обеих сторон, если данные есть на документе.', max_files: 4, required: true },
+    { case_id: createdCase.id, title: 'Справка о доходах', description: 'Пришлите последнюю доступную справку или выписку. Если документа нет — напишите об этом юристу в комментарии.', max_files: 10, required: true },
+  ])
+  if (requestsError) return json(400, { error: requestsError.message })
 
   return json(201, { clientId: invitation.user.id })
 }
