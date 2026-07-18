@@ -1,5 +1,9 @@
 create type public.document_request_status as enum ('requested', 'submitted', 'under_review', 'accepted', 'returned');
 
+-- A court number and court are not known during the initial document collection.
+alter table public.cases alter column case_number drop not null;
+alter table public.cases alter column court drop not null;
+
 create table public.document_requests (
   id uuid primary key default gen_random_uuid(),
   case_id uuid not null references public.cases(id) on delete cascade,

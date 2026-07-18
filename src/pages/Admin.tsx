@@ -87,8 +87,8 @@ export function Admin() {
           <Field name="email" label="Email для приглашения" type="email" required />
           <Field name="phone" label="Телефон" />
           <Field name="inn" label="ИНН" />
-          <Field name="caseNumber" label="Номер дела" required />
-          <Field name="court" label="Суд" required />
+          <Field name="caseNumber" label="Номер дела (если уже есть)" />
+          <Field name="court" label="Суд (если уже известен)" />
           <Field name="openDate" label="Дата открытия" type="date" required />
           <Field name="nextHearing" label="Следующее заседание" type="date" />
           <Field name="totalDebt" label="Долг перед кредиторами, ₽" type="number" />

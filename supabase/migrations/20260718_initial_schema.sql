@@ -15,9 +15,9 @@ create table public.profiles (
 create table public.cases (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references public.profiles(id) on delete cascade,
-  case_number text not null unique,
-  court text not null,
-  case_status text not null default 'initiation',
+  case_number text unique,
+  court text,
+  case_status text not null default 'document-collection',
   open_date date not null,
   next_hearing date,
   total_debt numeric(14,2) not null default 0,

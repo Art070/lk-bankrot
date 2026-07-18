@@ -44,7 +44,7 @@ export default async (request: Request) => {
   if (!caller || !['admin', 'manager'].includes(caller.role)) return json(403, { error: 'Forbidden' })
 
   const payload = await request.json() as CreateClientPayload
-  if (!payload.email || !payload.fullName || !payload.caseNumber || !payload.court || !payload.openDate) {
+  if (!payload.email || !payload.fullName || !payload.openDate) {
     return json(400, { error: 'Fill in all required fields' })
   }
 
@@ -59,8 +59,9 @@ export default async (request: Request) => {
 
   const { data: createdCase, error: caseError } = await admin.from('cases').insert({
     client_id: invitation.user.id,
-    case_number: payload.caseNumber,
-    court: payload.court,
+    case_number: payload.caseNumber || null,
+    court: payload.court || null,
+    case_status: 'document-collection',
     open_date: payload.openDate,
     next_hearing: payload.nextHearing || null,
     total_debt: payload.totalDebt ?? 0,
