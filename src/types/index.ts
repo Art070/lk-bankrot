@@ -26,6 +26,10 @@ export interface Client {
   contractTotal: number
   remainingPayment: number
   paymentProgress: number // 0-100
+  contractNumber: string | null
+  contractDate: string | null
+  paymentPlan: 'not_set' | 'one_time' | 'installments'
+  additionalExpensesNote: string | null
 }
 
 export type ClientUpdateTone = 'good' | 'action' | 'attention'

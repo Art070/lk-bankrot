@@ -53,6 +53,10 @@ export const mockClient: Client = {
   contractTotal: 2200000,
   remainingPayment: 350000,
   paymentProgress: 84,
+  contractNumber: 'А40-123456/2024',
+  contractDate: '2024-03-15',
+  paymentPlan: 'installments',
+  additionalExpensesNote: null,
 }
 
 export const mockPayments: Payment[] = [

@@ -83,6 +83,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         paymentProgress: caseRow.contract_total > 0
           ? Math.round(((Number(caseRow.contract_total) - Number(caseRow.remaining_payment)) / Number(caseRow.contract_total)) * 100)
           : 0,
+        contractNumber: caseRow.contract_number,
+        contractDate: caseRow.contract_date,
+        paymentPlan: (caseRow.payment_plan ?? 'not_set') as Client['paymentPlan'],
+        additionalExpensesNote: caseRow.additional_expenses_note,
       })
 
       const [docs, notifs, paymentRows, messageRows, updateRow] = await Promise.all([

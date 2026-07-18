@@ -1,14 +1,15 @@
 import {
+  CalendarDays,
   CheckCircle2,
   Clock,
-  CreditCard,
   Download,
+  FileText,
   Loader2,
   Printer,
-  TrendingDown,
   Wallet,
 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ProgressBar } from '../components/Common/ProgressBar'
 import { StatTile } from '../components/Common/StatTile'
 import { useData } from '../context/DataContext'
@@ -56,70 +57,30 @@ export function Finances() {
   const paidTotal = payments
     .filter((p) => p.status === 'paid')
     .reduce((s, p) => s + p.amount, 0)
-  const upcomingTotal = payments
-    .filter((p) => p.status !== 'paid')
-    .reduce((s, p) => s + p.amount, 0)
+  const paidByContract = Math.max(paidTotal, client.contractTotal - client.remainingPayment, 0)
+  const isPaid = client.contractTotal > 0 && client.remainingPayment <= 0
+  const hasInstallments = client.paymentPlan === 'installments' || payments.length > 1
+  const nextPayment = payments.find((payment) => payment.status === 'upcoming')
 
   return (
     <div className="space-y-6">
-      {/* Tiles */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile
-          icon={CreditCard}
-          label="Общий долг"
-          value={formatCurrency(client.totalDebt)}
-          hint="по реестру требований"
-          accent="navy"
-        />
-        <StatTile
-          icon={Wallet}
-          label="Сумма договора"
-          value={formatCurrency(client.contractTotal)}
-          hint="стоимость сопровождения"
-          accent="navy"
-        />
-        <StatTile
-          icon={CheckCircle2}
-          label="Оплачено"
-          value={formatCurrency(paidTotal)}
-          hint={`${payments.filter((p) => p.status === 'paid').length} платежей`}
-          accent="green"
-        />
-        <StatTile
-          icon={TrendingDown}
-          label="Остаток"
-          value={formatCurrency(client.remainingPayment)}
-          hint={`${upcomingTotal > 0 ? formatCurrency(upcomingTotal) : '—'} по графику`}
-          accent="gold"
-        />
-      </div>
-
-      {/* Progress */}
-      <div className="card p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-semibold text-navy-800 dark:text-white">
-            Прогресс погашения по договору
-          </h3>
-          <span className="text-2xl font-bold text-gold-500">
-            {client.paymentProgress}%
-          </span>
+      <section className="card overflow-hidden">
+        <div className="bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-white sm:p-6">
+          <p className="flex items-center gap-2 text-sm text-gold-300"><Wallet className="h-4 w-4" /> Ваш договор с компанией</p>
+          <h2 className="mt-2 text-xl font-bold sm:text-2xl">Юридическое сопровождение процедуры</h2>
+          <p className="mt-2 text-sm text-white/70">{client.contractNumber ? `Договор № ${client.contractNumber}` : 'Номер договора уточняется'}{client.contractDate ? ` · от ${formatDate(client.contractDate)}` : ''}</p>
         </div>
-        <ProgressBar value={client.paymentProgress} className="mt-4" />
-        <div className="mt-3 flex flex-wrap justify-between gap-2 text-sm text-navy-500 dark:text-white/50">
-          <span>Оплачено: {formatCurrency(paidTotal)}</span>
-          <span>Осталось: {formatCurrency(client.remainingPayment)}</span>
-        </div>
-      </div>
+        {client.contractTotal > 0 ? <div className="grid gap-4 p-5 sm:grid-cols-3"><StatTile icon={Wallet} label="Стоимость сопровождения" value={formatCurrency(client.contractTotal)} hint={hasInstallments ? 'Оплата по графику' : 'По условиям договора'} accent="navy" /><StatTile icon={CheckCircle2} label="Оплачено" value={formatCurrency(paidByContract)} hint={isPaid ? 'Договор оплачен' : `${client.paymentProgress}% от стоимости`} accent="green" /><StatTile icon={Clock} label="Осталось к оплате" value={formatCurrency(Math.max(client.remainingPayment, 0))} hint={isPaid ? 'Оплата завершена' : nextPayment ? `Ближайший платёж: ${formatDate(nextPayment.date)}` : 'Ожидайте график от юриста'} accent={isPaid ? 'green' : 'gold'} /></div> : <div className="p-5 text-sm text-navy-500">Условия оплаты будут добавлены в карточку договора сотрудником компании.</div>}
+      </section>
 
-      {/* Payment schedule / history */}
-      <div className="card overflow-hidden">
+      {isPaid ? <section className="card border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-400/20 dark:bg-emerald-400/10"><div className="flex gap-3"><CheckCircle2 className="h-7 w-7 shrink-0 text-emerald-600" /><div><h3 className="font-bold text-emerald-800 dark:text-emerald-200">Договор полностью оплачен</h3><p className="mt-1 text-sm leading-6 text-emerald-700 dark:text-emerald-100/75">Спасибо! С вашей стороны по оплате сейчас ничего не требуется. Юристы продолжают работу по делу и сообщат о важных событиях в кабинете.</p></div></div></section> : client.contractTotal > 0 && <section className="card p-5 sm:p-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-semibold text-navy-800 dark:text-white">Оплата по договору</h3><p className="mt-1 text-sm text-navy-400">{hasInstallments ? 'Ниже указан ваш персональный график. Отмечайте дату ближайшего платежа.' : 'Оплата по договору ещё не завершена.'}</p></div><span className="text-2xl font-bold text-gold-500">{client.paymentProgress}%</span></div><ProgressBar value={client.paymentProgress} className="mt-4" /><div className="mt-3 flex flex-wrap justify-between gap-2 text-sm text-navy-500 dark:text-white/50"><span>Оплачено: {formatCurrency(paidByContract)}</span><span>Осталось: {formatCurrency(client.remainingPayment)}</span></div></section>}
+
+      {hasInstallments && <div className="card overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-navy-100 p-5 dark:border-white/5">
           <div>
-            <h3 className="font-semibold text-navy-800 dark:text-white">
-              График и история платежей
-            </h3>
+            <h3 className="font-semibold text-navy-800 dark:text-white">График платежей</h3>
             <p className="text-xs text-navy-400 dark:text-white/40">
-              Все начисления и поступления по вашему договору
+              Платежи по договору с компанией
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -141,7 +102,6 @@ export function Finances() {
           </div>
         </div>
 
-        {/* Desktop table */}
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm">
             <thead>
@@ -187,7 +147,6 @@ export function Finances() {
           </table>
         </div>
 
-        {/* Mobile list */}
         <div className="divide-y divide-navy-100 dark:divide-white/5 md:hidden">
           {payments.map((p) => {
             const meta = STATUS_META[p.status]
@@ -215,7 +174,9 @@ export function Finances() {
             )
           })}
         </div>
-      </div>
+      </div>}
+
+      <section className="grid gap-4 lg:grid-cols-2"><div className="card p-5"><div className="flex gap-3"><FileText className="h-5 w-5 shrink-0 text-gold-600" /><div><h3 className="font-semibold text-navy-800 dark:text-white">Документы по договору</h3><p className="mt-1 text-sm text-navy-500">Подписанный договор, квитанции и другие документы хранятся в архиве дела.</p><Link to="/documents" className="mt-3 inline-flex text-sm font-semibold text-navy-700 underline-offset-4 hover:underline dark:text-gold-300">Открыть архив документов</Link></div></div></div><div className="card p-5"><div className="flex gap-3"><CalendarDays className="h-5 w-5 shrink-0 text-gold-600" /><div><h3 className="font-semibold text-navy-800 dark:text-white">Дополнительные расходы</h3><p className="mt-1 text-sm leading-6 text-navy-500">{client.additionalExpensesNote || 'Если по процедуре появятся обязательные расходы, юрист заранее объяснит их назначение и порядок оплаты.'}</p></div></div></div></section>
     </div>
   )
 }
