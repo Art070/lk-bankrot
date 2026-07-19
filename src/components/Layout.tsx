@@ -79,7 +79,7 @@ export function Layout() {
           </div>
         </main>
         <footer className="mx-auto hidden w-full max-w-[1400px] px-4 py-6 text-center text-xs text-navy-300 dark:text-white/25 sm:px-6 lg:block lg:px-8">
-          © 2026 НАШ МИР · Личный кабинет клиента · Демо-версия
+          © 2026 Заshitим · Личный кабинет клиента · Демо-версия
         </footer>
       </div>
       <MobileNav />

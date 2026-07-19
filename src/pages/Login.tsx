@@ -88,7 +88,7 @@ export function Login() {
           </div>
         </div>
         <div className="relative text-xs text-white/35">
-          © 2026 НАШ МИР · Юридическое сопровождение банкротства
+          © 2026 Заshitим · Юридическое сопровождение банкротства
         </div>
       </div>
 

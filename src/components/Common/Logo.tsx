@@ -20,7 +20,7 @@ export function Logo({
             }`}
             style={{ fontFamily: 'Poppins, Inter, sans-serif' }}
           >
-            НАШ МИР
+            Заshitим
           </div>
           <div
             className={`text-[11px] font-medium ${

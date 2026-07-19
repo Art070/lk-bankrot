@@ -55,7 +55,7 @@ function drawHeader(doc: Doc, subtitle: string) {
   doc.setTextColor(255, 255, 255)
   doc.setFont('Roboto', 'bold')
   doc.setFontSize(15)
-  doc.text('НАШ МИР', MARGIN + 16, 16)
+  doc.text('Заshitим', MARGIN + 16, 16)
   doc.setFont('Roboto', 'normal')
   doc.setFontSize(9)
   doc.setTextColor(212, 175, 55)
@@ -81,7 +81,7 @@ function drawFooter(doc: Doc) {
   doc.setFontSize(8)
   doc.setTextColor(...MUTE)
   doc.text(
-    '© 2026 НАШ МИР · Юридическое сопровождение банкротства',
+    '© 2026 Заshitим · Юридическое сопровождение банкротства',
     MARGIN,
     y + 5,
   )
