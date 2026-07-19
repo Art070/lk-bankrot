@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, CheckCircle2, ChevronDown, ClipboardCheck, FileText, Gavel, Sparkles } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Gavel, Sparkles } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../context/DataContext'
@@ -22,10 +22,12 @@ export function Journey() {
       <p className="mt-3 text-xs text-white/60">Сегодня, {formatDate(new Date().toISOString())}</p>
       <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Здравствуйте, {greeting}!</h2>
       <ClientStatusCard update={clientUpdate} current={current} />
-      <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-7 sm:grid-cols-5 sm:gap-3">
-        {STAGES.map((step, index) => { const Icon = step.icon; const isCurrent = index === current; const done = index < current; const opened = index === openedStage; return <button type="button" onClick={() => setOpenedStage(index)} key={step.key} aria-expanded={opened} className={`rounded-xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-gold-300 ${opened ? 'border-gold-300 bg-white/15' : isCurrent ? 'border-gold-300/60 bg-white/10' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}><div className="flex items-center gap-2"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${done ? 'bg-emerald-400 text-navy-900' : isCurrent ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/65'}`}><Icon className="h-4 w-4" /></span><p className="text-xs font-semibold leading-4 text-white sm:text-sm">{step.shortTitle}</p></div></button> })}
+      <div className="mt-7 flex items-center justify-between gap-3"><div><p className="text-sm font-bold text-white">Ваш путь по делу</p><p className="mt-0.5 text-xs text-white/60">Вы на этапе «{STAGES[current].shortTitle}». Нажмите на любой этап — это только подсказка, ваш прогресс не изменится.</p></div><span className="hidden rounded-full border border-gold-300/30 bg-gold-400/10 px-3 py-1 text-xs font-semibold text-gold-200 sm:block">Этапы дела</span></div>
+      <div className="relative mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+        <div className="pointer-events-none absolute left-[8%] right-[8%] top-7 hidden h-px bg-white/15 sm:block" />
+        {STAGES.map((step, index) => { const Icon = step.icon; const isCurrent = index === current; const done = index < current; const opened = index === openedStage; const position = done ? 'Пройден' : isCurrent ? 'Вы здесь' : 'Впереди'; return <button type="button" onClick={() => setOpenedStage(index)} key={step.key} aria-expanded={opened} className={`relative z-10 rounded-xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-gold-300 ${isCurrent ? 'border-gold-300 bg-gold-400/15 shadow-[0_0_0_1px_rgba(226,184,43,.2)]' : done ? 'border-emerald-300/45 bg-emerald-400/10' : 'border-white/10 bg-white/5 hover:bg-white/10'} ${opened && !isCurrent ? 'ring-1 ring-white/35' : ''}`}><div className="flex items-center gap-2 sm:flex-col sm:items-start"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ring-4 ring-navy-900 ${done ? 'bg-emerald-400 text-navy-900' : isCurrent ? 'bg-gold-400 text-navy-900' : 'bg-navy-700 text-white/65'}`}><Icon className="h-4 w-4" /></span><div><p className="text-xs font-bold leading-4 text-white sm:mt-2">{step.shortTitle}</p><p className={`mt-0.5 text-[10px] font-medium ${isCurrent ? 'text-gold-200' : done ? 'text-emerald-200' : 'text-white/45'}`}>{position}</p></div></div></button> })}
       </div>
-      <StagePreview stage={STAGES[openedStage]} isCurrent={openedStage === current} />
+      <StagePreview stage={STAGES[openedStage]} currentStage={current} openedStage={openedStage} />
     </section>
 
     {current === 0 && <ClientCheckin caseId={caseId} />}
@@ -36,9 +38,11 @@ export function Journey() {
   </div>
 }
 
-function StagePreview({ stage, isCurrent }: { stage: typeof STAGES[number]; isCurrent: boolean }) {
+function StagePreview({ stage, currentStage, openedStage }: { stage: typeof STAGES[number]; currentStage: number; openedStage: number }) {
   const Icon = stage.icon
-  return <div className="mt-3 rounded-xl border border-white/15 bg-navy-950/25 p-4 sm:p-5"><div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-400 text-navy-900"><Icon className="h-5 w-5" /></span><div className="min-w-0"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><h3 className="font-bold text-white">{stage.title}</h3>{isCurrent && <span className="rounded-full bg-gold-400/20 px-2 py-0.5 text-[11px] font-semibold text-gold-200">Сейчас вы здесь</span>}</div><p className="mt-1 text-xs font-medium text-gold-200">{stage.duration}</p><p className="mt-2 text-sm leading-5 text-white/75">{stage.reassuringText}</p></div></div><p className="mt-3 flex items-center gap-1 text-xs text-white/50">Нажмите на другой этап, чтобы посмотреть, что будет дальше <ChevronDown className="h-3.5 w-3.5" /></p></div>
+  const isCurrent = currentStage === openedStage
+  const label = isCurrent ? 'Ваш текущий этап' : openedStage < currentStage ? 'Этот этап уже позади' : 'Это ждёт вас дальше'
+  return <div className="mt-3 rounded-xl border border-white/15 bg-navy-950/25 p-4 sm:p-5"><div className="flex items-start gap-3"><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${isCurrent ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-gold-200'}`}><Icon className="h-5 w-5" /></span><div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-wide text-gold-200">{label}</p><h3 className="mt-1 font-bold text-white">{stage.title}</h3><p className="mt-1 text-xs font-medium text-gold-200">{stage.duration}</p><p className="mt-2 text-sm leading-5 text-white/75">{stage.reassuringText}</p></div></div><p className="mt-3 text-xs text-white/50">Подсказка не меняет ход дела — следующий этап откроется только после обновления от вашего юриста.</p></div>
 }
 
 function ClientStatusCard({ update, current }: { update: ClientCaseUpdate | null; current: number }) {
