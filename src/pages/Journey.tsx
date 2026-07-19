@@ -14,6 +14,7 @@ import { supabase } from "../lib/supabase";
 import type { ClientCaseUpdate } from "../types";
 import { formatDate } from "../lib/format";
 import { getStageUpdate, STAGES, STATUS_TO_STAGE } from "../lib/stages";
+import { CaseJourneyVisual } from "../components/CaseJourneyVisual";
 
 export function Journey() {
   const { caseId, client, clientUpdate, loading, error } = useData();
@@ -134,7 +135,8 @@ export function Journey() {
         </div>
       </section>
 
-      <div className="relative z-10">
+      <div className="relative z-10 space-y-6">
+        <CaseJourneyVisual />
         {current === 0 && <ClientCheckin caseId={caseId} />}
         {current === 1 && <DocumentStage />}
         {current === 2 && <FilingStage />}
