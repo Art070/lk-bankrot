@@ -15,7 +15,7 @@ html {
 body {
   margin: 0;
   font-family: 'Inter', 'Poppins', system-ui, sans-serif;
-  background-color: #f7f9fc;
+  background-color: #f8fafc;
   color: #2d3748;
   overscroll-behavior-y: none;
 }
@@ -34,13 +34,13 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(26, 54, 93, 0.18);
+  background: rgba(45, 123, 70, 0.18);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(26, 54, 93, 0.35);
+  background: rgba(45, 123, 70, 0.35);
   background-clip: content-box;
 }
 .dark ::-webkit-scrollbar-thumb {
