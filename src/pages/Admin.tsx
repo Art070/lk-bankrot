@@ -17,6 +17,7 @@ type WorkspaceData = {
   messages: Record<string, unknown>[]
   checkin: Record<string, unknown> | null
 }
+type Lead = { id: string; name: string | null; phone: string; status: 'new' | 'contacted' | 'contracted' | 'archived'; created_at: string }
 
 const value = (form: FormData, name: string) => String(form.get(name) ?? '').trim()
 const formatDate = (date: string) => date ? new Intl.DateTimeFormat('ru-RU').format(new Date(`${date}T00:00:00`)) : '—'
@@ -90,6 +91,7 @@ export function Admin() {
 
   const age = birthDate ? Math.floor((Date.now() - new Date(`${birthDate}T00:00:00`).getTime()) / 31557600000) : null
   return <div className="mx-auto max-w-4xl space-y-6"><div><h2 className="text-xl font-bold text-navy-800 dark:text-white">Управление клиентами</h2><p className="mt-1 text-sm text-navy-400 dark:text-white/40">После подписания договора создайте защищённую карточку. Поля подобраны для шапки будущего заявления; сведения о суде и деле добавляются позже.</p></div>
+    <LeadManager />
     <ClientWorkspace staffId={user?.id ?? ''} />
     <ClientUpdateEditor staffId={user?.id ?? ''} />
     <form onSubmit={submit} className="card space-y-7 p-6"><div className="flex gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-100 text-gold-700"><UserPlus className="h-5 w-5" /></span><div><h3 className="font-semibold text-navy-800 dark:text-white">Новый клиент</h3><p className="text-sm text-navy-400">Поля со звёздочкой обязательны для создания личного кабинета.</p></div></div>{notice && <p className="flex gap-2 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700"><CheckCircle2 className="h-5 w-5 shrink-0" />{notice}</p>}{error && <p className="flex gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"><AlertCircle className="h-5 w-5 shrink-0" />{error}</p>}
@@ -103,6 +105,16 @@ export function Admin() {
     {header && <section className="card p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="font-semibold text-navy-800 dark:text-white">Шапка заявления: данные должника</h3><p className="mt-1 text-sm text-navy-400">Сформирована по введённым данным. Перед подачей юрист проверяет реквизиты.</p></div><button type="button" onClick={() => void navigator.clipboard.writeText(header)} className="btn-ghost"><Copy className="h-4 w-4" />Копировать</button></div><pre className="mt-4 whitespace-pre-wrap rounded-xl bg-navy-50 p-4 font-sans text-sm leading-6 text-navy-700 dark:bg-white/5 dark:text-white/75">{header}</pre></section>}
     <section className="card p-6"><h3 className="font-semibold text-navy-800 dark:text-white">Документы на проверке</h3>{requests.length === 0 ? <p className="mt-3 text-sm text-navy-400">Новых документов пока нет.</p> : <div className="mt-4 space-y-4">{requests.map((request) => <div key={request.id} className="rounded-xl border border-navy-100 p-4 dark:border-white/10"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-medium text-navy-800 dark:text-white">{request.title}</p><p className="text-xs text-navy-400">{request.cases?.profiles?.full_name ?? 'Клиент'} · дело {request.cases?.case_number ?? 'ещё не присвоено'}</p></div><span className="chip bg-gold-100 text-gold-700">На проверке</span></div><p className="mt-3 text-sm text-navy-500">Файлы: {request.document_request_files.map((file) => file.file_name).join(', ') || '—'}</p><textarea value={comments[request.id] ?? ''} onChange={(event) => setComments((prev) => ({ ...prev, [request.id]: event.target.value }))} placeholder="Комментарий обязателен, если возвращаете документ" rows={2} className="input-field mt-3 resize-none" /><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => void review(request.id, true)} type="button" className="btn-primary px-4 py-2"><Check className="h-4 w-4" />Принять</button><button onClick={() => void review(request.id, false)} type="button" className="btn-ghost px-4 py-2"><RotateCcw className="h-4 w-4" />Вернуть на доработку</button></div></div>)}</div>}</section>
   </div>
+}
+
+function LeadManager() {
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [error, setError] = useState('')
+  const load = async () => { const { data, error: loadError } = await supabase.from('leads').select('id, name, phone, status, created_at').order('created_at', { ascending: false }).limit(30); if (loadError) setError(loadError.message); else setLeads((data ?? []) as Lead[]) }
+  useEffect(() => { void load() }, [])
+  const update = async (id: string, status: Lead['status']) => { const { error: updateError } = await supabase.from('leads').update({ status }).eq('id', id); if (updateError) setError(updateError.message); else void load() }
+  const labels: Record<Lead['status'], string> = { new: 'Новая', contacted: 'Связались', contracted: 'Договор', archived: 'Архив' }
+  return <section className="card p-5 sm:p-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-semibold text-navy-800 dark:text-white">Новые обращения с сайта</h3><p className="mt-1 text-sm text-navy-400">После заключения договора создайте клиенту доступ в блоке ниже.</p></div><span className="chip bg-gold-100 text-gold-700">{leads.filter((lead) => lead.status === 'new').length} новых</span></div>{error && <p className="mt-3 text-sm text-rose-600">{error}</p>}{leads.length ? <div className="mt-4 divide-y divide-navy-100 dark:divide-white/10">{leads.map((lead) => <div key={lead.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-medium text-navy-800 dark:text-white">{lead.name || 'Без имени'} · {lead.phone}</p><p className="text-xs text-navy-400">{new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(lead.created_at))}</p></div><select value={lead.status} onChange={(event) => void update(lead.id, event.target.value as Lead['status'])} className="input-field w-auto py-2 text-sm">{Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>)}</div> : <p className="mt-3 text-sm text-navy-400">Новых обращений пока нет.</p>}</section>
 }
 
 function ClientWorkspace({ staffId }: { staffId: string }) {

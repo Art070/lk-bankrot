@@ -16,6 +16,7 @@ import { Onboarding } from './pages/Onboarding'
 import { Journey } from './pages/Journey'
 import { ActivateAccount } from './pages/ActivateAccount'
 import { DemoCabinet } from './pages/DemoCabinet'
+import { Landing } from './pages/Landing'
 
 function FullScreenLoader() {
   return (
@@ -44,10 +45,11 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/activate" element={<ActivateAccount />} />
         <Route path="/demo" element={<DemoCabinet />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     )
   }
