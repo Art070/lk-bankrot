@@ -1,53 +1,62 @@
-import { AlertCircle, Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Logo } from '../components/Common/Logo'
-import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../lib/supabase'
+import { AlertCircle, Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { Logo } from "../components/Common/Logo";
+import { useAuth } from "../hooks/useAuth";
+import { supabase } from "../lib/supabase";
 
 export function Login() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [loginValue, setLoginValue] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [touched, setTouched] = useState(false)
-  const [notice, setNotice] = useState('')
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [loginValue, setLoginValue] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [notice, setNotice] = useState("");
 
-  const loginError = touched && !loginValue.trim() ? 'Введите email' : ''
+  const loginError = touched && !loginValue.trim() ? "Введите email" : "";
   const passwordError =
-    touched && password.length < 4 ? 'Минимум 4 символа' : ''
+    touched && password.length < 4 ? "Минимум 4 символа" : "";
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setTouched(true)
-    setError('')
-    if (!loginValue.trim() || password.length < 4) return
-    setLoading(true)
+    e.preventDefault();
+    setTouched(true);
+    setError("");
+    if (!loginValue.trim() || password.length < 4) return;
+    setLoading(true);
     try {
-      await login(loginValue, password)
-      navigate('/', { replace: true })
+      await login(loginValue, password);
+      navigate("/", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка входа')
+      setError(err instanceof Error ? err.message : "Ошибка входа");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const requestPasswordReset = async () => {
-    setError('')
-    setNotice('')
-    if (!loginValue.trim()) return setError('Введите email, чтобы получить ссылку для создания пароля.')
-    setLoading(true)
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(loginValue.trim(), {
-      redirectTo: `${window.location.origin}/activate`,
-    })
-    setLoading(false)
-    if (resetError) setError(resetError.message)
-    else setNotice('Если аккаунт существует, письмо со ссылкой для создания пароля отправлено на указанный email.')
-  }
+    setError("");
+    setNotice("");
+    if (!loginValue.trim())
+      return setError(
+        "Введите email, чтобы получить ссылку для создания пароля.",
+      );
+    setLoading(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      loginValue.trim(),
+      {
+        redirectTo: `${window.location.origin}/activate`,
+      },
+    );
+    setLoading(false);
+    if (resetError) setError(resetError.message);
+    else
+      setNotice(
+        "Если аккаунт существует, письмо со ссылкой для создания пароля отправлено на указанный email.",
+      );
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -57,7 +66,7 @@ export function Login() {
           className="pointer-events-none absolute inset-0 opacity-30"
           style={{
             backgroundImage:
-              'radial-gradient(circle at 20% 20%, rgba(212,175,55,0.25), transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,175,55,0.15), transparent 45%)',
+              "radial-gradient(circle at 20% 20%, rgba(212,175,55,0.25), transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,175,55,0.15), transparent 45%)",
           }}
         />
         <div className="relative">
@@ -65,7 +74,7 @@ export function Login() {
         </div>
         <div className="relative">
           <h1 className="max-w-md text-4xl font-bold leading-tight">
-            Ваше дело —{' '}
+            Ваше дело —{" "}
             <span className="text-gold-300">под надёжным контролем</span>
           </h1>
           <p className="mt-4 max-w-md text-white/60">
@@ -88,7 +97,7 @@ export function Login() {
           </div>
         </div>
         <div className="relative text-xs text-white/35">
-          © 2026 Заshitим · Юридическое сопровождение банкротства
+          © 2026 Маяк · Юридическое сопровождение банкротства
         </div>
       </div>
 
@@ -110,7 +119,11 @@ export function Login() {
               {error}
             </div>
           )}
-          {notice && <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div>}
+          {notice && (
+            <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {notice}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
             <div>
@@ -127,7 +140,7 @@ export function Login() {
                   onBlur={() => setTouched(true)}
                   placeholder="name@example.com"
                   className={`input-field pl-10 ${
-                    loginError ? 'border-rose-300 focus:ring-rose-100' : ''
+                    loginError ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
               </div>
@@ -143,21 +156,23 @@ export function Login() {
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-300" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => setTouched(true)}
                   placeholder="••••••••"
                   className={`input-field pl-10 pr-10 ${
-                    passwordError ? 'border-rose-300 focus:ring-rose-100' : ''
+                    passwordError ? "border-rose-300 focus:ring-rose-100" : ""
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-300 hover:text-navy-500"
-                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                  aria-label={
+                    showPassword ? "Скрыть пароль" : "Показать пароль"
+                  }
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -171,25 +186,37 @@ export function Login() {
               )}
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full"
+            >
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Вход…
                 </>
               ) : (
-                'Войти'
+                "Войти"
               )}
             </button>
-            <button type="button" disabled={loading} onClick={() => void requestPasswordReset()} className="w-full text-sm font-medium text-navy-500 hover:text-navy-800">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => void requestPasswordReset()}
+              className="w-full text-sm font-medium text-navy-500 hover:text-navy-800"
+            >
               Создать или восстановить пароль
             </button>
-            <button type="button" onClick={() => navigate('/demo')} className="btn-ghost w-full">
+            <button
+              type="button"
+              onClick={() => navigate("/demo")}
+              className="btn-ghost w-full"
+            >
               Открыть демо-кабинет
             </button>
           </form>
-
         </div>
       </div>
     </div>
-  )
+  );
 }
