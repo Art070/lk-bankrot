@@ -1,4 +1,4 @@
-import { Lamp } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export function Logo({
   compact = false,
@@ -10,7 +10,7 @@ export function Logo({
   return (
     <div className="flex items-center gap-2.5">
       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-400 shadow-sm">
-        <Lamp className="h-5 w-5 text-navy-900" strokeWidth={2.2} />
+        <ShieldCheck className="h-5 w-5 text-navy-900" strokeWidth={2.2} />
       </div>
       {!compact && (
         <div className="leading-tight">

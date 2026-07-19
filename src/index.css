@@ -111,27 +111,6 @@ body {
   }
 }
 
-@keyframes beacon-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(226, 184, 43, 0.2), 0 0 18px rgba(226, 184, 43, 0.28); }
-  50% { box-shadow: 0 0 0 8px rgba(226, 184, 43, 0), 0 0 32px rgba(226, 184, 43, 0.52); }
-}
-@keyframes beacon-rise {
-  0% { opacity: 0; transform: translateY(18px) scale(0.98); filter: brightness(1.4); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
-}
-@keyframes beacon-sweep {
-  0% { transform: translateX(-120%) rotate(-12deg); opacity: 0; }
-  20% { opacity: .7; }
-  100% { transform: translateX(155%) rotate(-12deg); opacity: 0; }
-}
-.beacon-shell { position: relative; }
-.beacon-shell::after { content: ''; pointer-events: none; position: absolute; inset: -30% 35% -40%; background: linear-gradient(90deg, transparent, rgba(226,184,43,.08), transparent); transform: rotate(-12deg); animation: beacon-sweep 7s ease-in-out infinite; }
-.beacon-current { animation: beacon-pulse 2.5s ease-in-out infinite; }
-.animate-beacon-rise { animation: beacon-rise .72s cubic-bezier(.2,.8,.2,1) both; }
-.beacon-modal { animation: beacon-rise .38s cubic-bezier(.2,.8,.2,1) both; }
-.beacon-modal__light { pointer-events: none; position: absolute; inset: -35% -55%; background: linear-gradient(105deg, transparent 42%, rgba(226,184,43,.22) 49%, rgba(255,246,192,.34) 50%, rgba(226,184,43,.22) 51%, transparent 58%); animation: beacon-sweep 2.8s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .beacon-shell::after, .beacon-current, .animate-beacon-rise, .beacon-modal, .beacon-modal__light { animation: none; } }
-
 @media print {
   aside,
   header,
