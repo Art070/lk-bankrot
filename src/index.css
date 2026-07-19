@@ -111,6 +111,22 @@ body {
   }
 }
 
+@keyframes lighthouse-sweep {
+  0%, 100% { transform: translateX(-55%) rotate(-13deg); opacity: .18; }
+  50% { transform: translateX(55%) rotate(13deg); opacity: .52; }
+}
+
+.journey-page { position: relative; }
+.lighthouse-overview { background: radial-gradient(circle at 87% 28%, rgba(226,184,43,.18), transparent 25%), radial-gradient(circle at 6% 110%, rgba(45,123,70,.22), transparent 31%), linear-gradient(130deg, #17293e 0%, #101e31 52%, #0c1727 100%); }
+.lighthouse-overview::before { content: ''; position: absolute; inset: -55% -15%; pointer-events: none; background: linear-gradient(100deg, transparent 43%, rgba(255,244,180,.1) 49%, rgba(255,244,180,.02) 56%, transparent 62%); animation: lighthouse-sweep 9s ease-in-out infinite; }
+.journey-lighthouse-bg { position: fixed; z-index: -1; right: max(1.25rem, calc((100vw - 1400px) / 2)); bottom: 2.5rem; width: 13rem; height: 20rem; pointer-events: none; overflow: hidden; opacity: .72; }
+.journey-lighthouse-bg::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 9rem; background: linear-gradient(transparent, rgba(226,184,43,.42)); box-shadow: 0 0 28px rgba(226,184,43,.25); }
+.journey-lighthouse-bg__beam { position: absolute; bottom: 8rem; left: -14rem; width: 32rem; height: 9rem; transform-origin: 50% 100%; background: linear-gradient(90deg, transparent, rgba(226,184,43,.45), transparent); clip-path: polygon(50% 100%, 100% 0, 0 0); transition: opacity .2s ease, transform .2s ease; }
+.journey-lighthouse-bg__caption { position: absolute; bottom: .25rem; right: 0; margin: 0; color: rgba(26,54,93,.28); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; transition: opacity .25s ease; }
+
+@media (max-width: 1023px) { .journey-lighthouse-bg { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lighthouse-overview::before { animation: none; } .journey-lighthouse-bg__beam { transition: none; } }
+
 @media print {
   aside,
   header,
