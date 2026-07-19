@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Gavel, Sparkles } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle2, ChevronDown, ClipboardCheck, FileText, Gavel, Sparkles } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../context/DataContext'
@@ -15,16 +15,17 @@ export function Journey() {
 
   const current = STATUS_TO_STAGE[client.caseStatus] ?? 0
   const greeting = greetingName(client.name)
+  const [openedStage, setOpenedStage] = useState(current)
   return <div className="mx-auto max-w-5xl space-y-6">
     <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-white shadow-card sm:p-8">
       <p className="flex items-center gap-2 text-sm text-gold-300"><Sparkles className="h-4 w-4" /> Коротко о вашем деле</p>
       <p className="mt-3 text-xs text-white/60">Сегодня, {formatDate(new Date().toISOString())}</p>
       <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Здравствуйте, {greeting}!</h2>
       <ClientStatusCard update={clientUpdate} current={current} />
-      <div className="mt-6 grid grid-cols-5 gap-2 sm:mt-7 sm:gap-3">
-        {STAGES.map((step, index) => { const Icon = step.icon; const active = index === current; const done = index < current; return <div key={step.key} className={`rounded-xl border p-2 sm:p-3 ${active ? 'border-gold-300 bg-white/15' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5'}`}><div className="flex items-center justify-center gap-2 sm:justify-start"><span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-bold ${done ? 'bg-emerald-400 text-navy-900' : active ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/60'}`}>{done ? '✓' : index + 1}</span><Icon className="hidden h-4 w-4 text-white/75 sm:block" /></div><p className="mt-2 hidden text-xs font-semibold sm:block">{step.shortTitle}</p></div> })}
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-7 sm:grid-cols-5 sm:gap-3">
+        {STAGES.map((step, index) => { const Icon = step.icon; const isCurrent = index === current; const done = index < current; const opened = index === openedStage; return <button type="button" onClick={() => setOpenedStage(index)} key={step.key} aria-expanded={opened} className={`rounded-xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-gold-300 ${opened ? 'border-gold-300 bg-white/15' : isCurrent ? 'border-gold-300/60 bg-white/10' : done ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}><div className="flex items-center gap-2"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${done ? 'bg-emerald-400 text-navy-900' : isCurrent ? 'bg-gold-400 text-navy-900' : 'bg-white/10 text-white/65'}`}><Icon className="h-4 w-4" /></span><p className="text-xs font-semibold leading-4 text-white sm:text-sm">{step.shortTitle}</p></div></button> })}
       </div>
-      <p className="mt-3 text-center text-xs text-white/60">Этап {current + 1} из 5 · {STAGES[current].title}</p>
+      <StagePreview stage={STAGES[openedStage]} isCurrent={openedStage === current} />
     </section>
 
     {current === 0 && <ClientCheckin caseId={caseId} />}
@@ -33,6 +34,11 @@ export function Journey() {
     {current === 3 && <ActiveStage status={client.caseStatus} />}
     {current === 4 && <CompletionStage />}
   </div>
+}
+
+function StagePreview({ stage, isCurrent }: { stage: typeof STAGES[number]; isCurrent: boolean }) {
+  const Icon = stage.icon
+  return <div className="mt-3 rounded-xl border border-white/15 bg-navy-950/25 p-4 sm:p-5"><div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-400 text-navy-900"><Icon className="h-5 w-5" /></span><div className="min-w-0"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><h3 className="font-bold text-white">{stage.title}</h3>{isCurrent && <span className="rounded-full bg-gold-400/20 px-2 py-0.5 text-[11px] font-semibold text-gold-200">Сейчас вы здесь</span>}</div><p className="mt-1 text-xs font-medium text-gold-200">{stage.duration}</p><p className="mt-2 text-sm leading-5 text-white/75">{stage.reassuringText}</p></div></div><p className="mt-3 flex items-center gap-1 text-xs text-white/50">Нажмите на другой этап, чтобы посмотреть, что будет дальше <ChevronDown className="h-3.5 w-3.5" /></p></div>
 }
 
 function ClientStatusCard({ update, current }: { update: ClientCaseUpdate | null; current: number }) {
