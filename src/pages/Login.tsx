@@ -183,6 +183,9 @@ export function Login() {
             <button type="button" disabled={loading} onClick={() => void requestPasswordReset()} className="w-full text-sm font-medium text-navy-500 hover:text-navy-800">
               Создать или восстановить пароль
             </button>
+            <button type="button" onClick={() => navigate('/demo')} className="btn-ghost w-full">
+              Открыть демо-кабинет
+            </button>
           </form>
 
         </div>

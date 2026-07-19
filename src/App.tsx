@@ -15,6 +15,7 @@ import { Setup } from './pages/Setup'
 import { Onboarding } from './pages/Onboarding'
 import { Journey } from './pages/Journey'
 import { ActivateAccount } from './pages/ActivateAccount'
+import { DemoCabinet } from './pages/DemoCabinet'
 
 function FullScreenLoader() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/activate" element={<ActivateAccount />} />
+        <Route path="/demo" element={<DemoCabinet />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     )
