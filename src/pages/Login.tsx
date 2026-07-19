@@ -61,12 +61,13 @@ export function Login() {
   return (
     <div className="flex min-h-screen">
       {/* Left brand panel */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-navy-800 p-12 text-white lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-navy-950 p-12 text-white lg:flex">
+        <img src="/images/mayak-night-reference.png" alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45" />
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 opacity-80"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(212,175,55,0.25), transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,175,55,0.15), transparent 45%)",
+              "linear-gradient(90deg, rgba(4,27,45,.94), rgba(4,27,45,.5)), radial-gradient(circle at 20% 20%, rgba(237,189,105,.22), transparent 40%)",
           }}
         />
         <div className="relative">

@@ -9,12 +9,12 @@ import { useAuth } from "../hooks/useAuth";
 
 const TITLES: Record<string, { title: string; subtitle: string }> = {
   "/": {
-    title: "Обзор дела",
-    subtitle: "Ключевая информация по вашей процедуре",
+    title: "Ваш маршрут",
+    subtitle: "Точка, где вы сейчас, и ближайший ориентир",
   },
   "/overview": {
     title: "Обзор дела",
-    subtitle: "Ключевая информация по вашей процедуре",
+    subtitle: "Всё важное по вашему маршруту",
   },
   "/case": {
     title: "Статус дела",
@@ -54,7 +54,7 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc] dark:bg-navy-950">
+    <div className="min-h-screen bg-[#f3f8f8] dark:bg-navy-950">
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed((c) => !c)}

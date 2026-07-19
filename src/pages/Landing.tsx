@@ -1,366 +1,53 @@
-import {
-  CheckCircle2,
-  ChevronDown,
-  FileText,
-  LockKeyhole,
-  MessageCircle,
-  Scale,
-} from "lucide-react";
-import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { ArrowRight, CheckCircle2, ChevronDown, FileText, LockKeyhole, MessageCircle, Scale, Waves } from 'lucide-react'
+import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 const faqs = [
-  [
-    "Сколько длится процедура?",
-    "Срок зависит от выбранного порядка, обстоятельств дела и загруженности суда. На консультации юрист объяснит ориентиры применительно к вашей ситуации.",
-  ],
-  [
-    "Моё имущество арестуют?",
-    "Закон предусматривает исключения, в том числе для единственного жилья и личных вещей. Юрист разберёт состав имущества и возможные риски до заключения договора.",
-  ],
-  [
-    "Нужно ли мне самому ходить в суд?",
-    "Формат участия зависит от конкретного дела. После заключения договора юрист объяснит, в каких случаях ваше участие действительно понадобится.",
-  ],
-];
+  ['Сколько длится процедура?', 'Срок зависит от выбранного порядка, обстоятельств дела и загруженности суда. На консультации юрист объяснит ориентиры именно для вашей ситуации.'],
+  ['Моё имущество арестуют?', 'Закон предусматривает исключения, в том числе для единственного жилья и личных вещей. До договора юрист разберёт состав имущества и возможные риски.'],
+  ['Нужно ли мне самому ходить в суд?', 'Формат участия зависит от конкретного дела. Юрист заранее объяснит, когда ваше участие действительно понадобится.'],
+]
 
 export function Landing() {
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [sent, setSent] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
   const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    setSending(true);
-    setError("");
+    event.preventDefault(); const form = new FormData(event.currentTarget); setSending(true); setError('')
     try {
-      const response = await fetch("/.netlify/functions/create-lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.get("name"),
-          phone: form.get("phone"),
-          consent: form.get("consent") === "on",
-        }),
-      });
-      const body = (await response.json()) as { error?: string };
-      if (!response.ok)
-        throw new Error(body.error ?? "Не удалось отправить заявку");
-      setSent(true);
-      event.currentTarget.reset();
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Не удалось отправить заявку",
-      );
-    } finally {
-      setSending(false);
-    }
-  };
-  return (
-    <div className="min-h-screen bg-white font-sans text-[#1a1a2e]">
-      <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-7">
-          <Link to="/" className="text-2xl font-bold tracking-tight">
-            Маяк<span className="text-[#2d7b46]">.</span>
-          </Link>
-          <nav className="flex items-center gap-4 sm:gap-7">
-            <a
-              href="#how"
-              className="hidden text-sm font-medium text-[#4a4a6a] hover:text-[#2d7b46] sm:block"
-            >
-              Как мы работаем
-            </a>
-            <a
-              href="#faq"
-              className="hidden text-sm font-medium text-[#4a4a6a] hover:text-[#2d7b46] sm:block"
-            >
-              Вопросы
-            </a>
-            <Link
-              to="/login"
-              className="rounded-full bg-[#1a1a2e] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2d2d4e]"
-            >
-              Войти
-            </Link>
-          </nav>
-        </div>
-      </header>
-      <main>
-        <section className="bg-gradient-to-br from-[#f8fafc] to-[#edf4ee]">
-          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-7 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-20">
-            <div>
-              <p className="inline-flex rounded-full bg-[#dcefe1] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[#236a39]">
-                Банкротство без неизвестности
-              </p>
-              <h1 className="mt-5 max-w-xl text-4xl font-extrabold leading-[1.12] tracking-tight sm:text-5xl">
-                Долги не должны держать вас{" "}
-                <span className="text-[#2d7b46]">в неизвестности.</span>
-              </h1>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-[#4a4a6a]">
-                Если кажется, что выхода нет — начните с ясного плана. Мы
-                разберём вашу ситуацию, честно объясним возможные шаги и после
-                договора дадим доступ к кабинету, где видно всё важное по делу.
-              </p>
-              <div className="mt-8 rounded-2xl bg-white p-5 shadow-[0_20px_60px_rgba(26,26,46,.08)] sm:p-6">
-                <h2 className="font-semibold">Сделайте первый спокойный шаг</h2>
-                <p className="mt-1 text-sm text-[#6b6b8a]">
-                  Оставьте номер. Специалист свяжется с вами, выслушает ситуацию
-                  и объяснит, с чего начать — без давления и сложных слов.
-                </p>
-                {sent ? (
-                  <div className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
-                    <CheckCircle2 className="mb-2 h-5 w-5" />
-                    Спасибо! Заявка принята. Мы свяжемся с вами для первого
-                    разговора.
-                  </div>
-                ) : (
-                  <form onSubmit={submit} className="mt-5">
-                    <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-                      <input
-                        name="name"
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-[#2d7b46] focus:bg-white"
-                        placeholder="Как к вам обращаться?"
-                      />
-                      <input
-                        required
-                        name="phone"
-                        type="tel"
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-[#2d7b46] focus:bg-white"
-                        placeholder="+7 (___) ___-__-__"
-                      />
-                      <button
-                        disabled={sending}
-                        className="rounded-xl bg-[#2d7b46] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#236a39] disabled:opacity-60"
-                      >
-                        {sending ? "Отправляем…" : "Начать диалог"}
-                      </button>
-                    </div>
-                    <label className="mt-3 flex gap-2 text-xs leading-5 text-[#6b6b8a]">
-                      <input
-                        required
-                        name="consent"
-                        type="checkbox"
-                        className="mt-0.5"
-                      />
-                      Согласен(на) на обработку номера телефона для обратной
-                      связи.
-                    </label>
-                    {error && (
-                      <p className="mt-3 text-sm text-rose-600">{error}</p>
-                    )}
-                  </form>
-                )}
-              </div>
-            </div>
-            <div className="mx-auto w-full max-w-xl rounded-[22px] bg-[#1a1a2e] p-5 text-white shadow-[0_30px_80px_rgba(26,26,46,.2)] sm:p-6">
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>📋 Личный кабинет</span>
-                <span>Демо-версия</span>
-              </div>
-              <div className="mt-5 flex gap-2">
-                {[true, true, true, false, false].map((active, index) => (
-                  <span
-                    key={index}
-                    className={`h-1 flex-1 rounded ${active ? "bg-[#2d7b46]" : "bg-slate-700"}`}
-                  />
-                ))}
-              </div>
-              <MockLine
-                icon="📄"
-                text="Собрано 7 из 12 документов"
-                status="● Загрузка"
-              />
-              <MockLine
-                icon="⚖️"
-                text="Подача заявления — 5 дней"
-                status="⏳ Ожидание"
-              />
-              <MockLine
-                icon="💬"
-                text="Новое сообщение от куратора"
-                status="✉️ 1"
-              />
-              <Link
-                to="/demo"
-                className="mt-4 inline-flex text-sm font-medium text-[#7fcb96] hover:text-white"
-              >
-                Посмотреть демо-кабинет →
-              </Link>
-            </div>
-          </div>
-        </section>
-        <section
-          id="how"
-          className="mx-auto max-w-6xl px-5 py-16 sm:px-7 sm:py-20"
-        >
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2d7b46]">
-            Как это работает
-          </p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl">
-            От первого обращения до личного кабинета — без путаницы
-          </h2>
-          <p className="mt-4 max-w-2xl text-lg text-[#4a4a6a]">
-            Короткий путь от тревоги к понятному плану.
-          </p>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <Step
-              number="1"
-              title="Оставляете номер"
-              text="Коротко рассказываете о ситуации в удобном формате. Никаких обязательств — только первый шаг к ясности."
-            />
-            <Step
-              number="2"
-              title="Общаетесь с юристом"
-              text="Разбираем документы и возможный порядок действий. Вы понимаете план, риски и сроки."
-            />
-            <Step
-              number="3"
-              title="Заключаете договор"
-              text="Фиксируем условия сопровождения и оплаты. После этого создаём защищённый личный кабинет."
-            />
-          </div>
-        </section>
-        <section className="bg-[#f8fafc]">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-7 sm:py-20">
-            <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2d7b46]">
-              Что даёт кабинет
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Понятно. Доступно. Защищено.
-            </h2>
-            <p className="mt-4 max-w-2xl text-lg text-[#4a4a6a]">
-              Всё, что нужно для спокойного прохождения процедуры — в одном
-              месте.
-            </p>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              <Benefit
-                icon={FileText}
-                title="Без лишней тревоги"
-                text="Задачи и события собираются в одном кабинете. Вы всегда видите, на каком этапе дело."
-              />
-              <Benefit
-                icon={MessageCircle}
-                title="Понятная связь"
-                text="Вопрос можно задать юристу в чате, а ответы сохраняются в истории дела."
-              />
-              <Benefit
-                icon={LockKeyhole}
-                title="Доступ только для вас"
-                text="Кабинет создаётся после договора и защищён паролем."
-              />
-            </div>
-          </div>
-        </section>
-        <section
-          id="faq"
-          className="mx-auto max-w-4xl px-5 py-16 sm:px-7 sm:py-20"
-        >
-          <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-[#2d7b46]">
-            Частые вопросы
-          </p>
-          <h2 className="mt-3 text-center text-3xl font-bold tracking-tight sm:text-4xl">
-            Всё, что вы хотели узнать
-          </h2>
-          <div className="mt-9 divide-y divide-slate-200">
-            {faqs.map(([question, answer], index) => (
-              <button
-                key={question}
-                onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="w-full py-5 text-left"
-              >
-                <span className="flex items-center justify-between gap-4 text-lg font-semibold">
-                  <span>{question}</span>
-                  <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-[#2d7b46] transition ${openFaq === index ? "rotate-180" : ""}`}
-                  />
-                </span>
-                {openFaq === index && (
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4a4a6a]">
-                    {answer}
-                  </p>
-                )}
-              </button>
-            ))}
-          </div>
-        </section>
-      </main>
-      <footer className="bg-[#1a1a2e] px-5 py-10 text-slate-400 sm:px-7">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
-          <div>
-            <p className="text-xl font-bold text-white">
-              Маяк<span className="text-[#2d7b46]">.</span>
-            </p>
-            <p className="mt-1 text-sm">
-              Личный кабинет и юридическое сопровождение
-            </p>
-          </div>
-          <Link to="/login" className="text-sm text-white hover:text-[#7fcb96]">
-            Войти в личный кабинет
-          </Link>
-        </div>
-        <p className="mx-auto mt-7 max-w-6xl border-t border-slate-700 pt-5 text-center text-xs text-slate-500">
-          Материалы сайта носят информационный характер и не являются публичной
-          офертой.
-        </p>
-      </footer>
-    </div>
-  );
+      const response = await fetch('/.netlify/functions/create-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: form.get('name'), phone: form.get('phone'), consent: form.get('consent') === 'on' }) })
+      const body = (await response.json()) as { error?: string }
+      if (!response.ok) throw new Error(body.error ?? 'Не удалось отправить заявку')
+      setSent(true); event.currentTarget.reset()
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось отправить заявку') } finally { setSending(false) }
+  }
+
+  return <div className="min-h-screen overflow-hidden bg-[#f6fbfb] text-navy-900">
+    <header className="absolute inset-x-0 top-0 z-30">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
+        <Link to="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-white"><span className="grid h-8 w-8 place-items-center rounded-full border border-gold-200/50 bg-gold-300/15 text-gold-200"><Waves className="h-4 w-4" /></span>Маяк</Link>
+        <nav className="flex items-center gap-6 text-sm font-medium text-white/75"><a href="#route" className="hidden transition hover:text-white sm:block">Как мы ведём дело</a><a href="#faq" className="hidden transition hover:text-white sm:block">Вопросы</a><Link to="/login" className="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-white backdrop-blur transition hover:bg-white/20">Войти в кабинет</Link></nav>
+      </div>
+    </header>
+    <main>
+      <section className="relative isolate min-h-[760px] overflow-hidden bg-navy-950 pt-28 text-white">
+        <img src="/images/mayak-dawn-hero.png" alt="Маяк на морском берегу" className="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-90" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,27,45,.97)_0%,rgba(4,27,45,.82)_42%,rgba(4,27,45,.08)_77%),linear-gradient(0deg,rgba(4,27,45,.9),transparent_55%)]" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 pb-16 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-end lg:pb-24">
+          <div className="max-w-2xl pt-16 lg:pt-32"><p className="inline-flex items-center gap-2 rounded-full border border-gold-200/25 bg-gold-300/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[.15em] text-gold-200"><span className="h-1.5 w-1.5 rounded-full bg-gold-300" /> Банкротство без неизвестности</p><h1 className="mt-6 text-5xl font-bold leading-[1.02] tracking-[-.04em] sm:text-6xl">Когда море штормит, <span className="text-gold-200">важен ориентир.</span></h1><p className="mt-6 max-w-xl text-lg leading-8 text-white/70">Мы разбираем ситуацию, строим понятный маршрут и остаёмся рядом на каждом этапе. Без давления, сложных слов и потерянных сообщений.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#start" className="btn-gold">Начать спокойно <ArrowRight className="h-4 w-4" /></a><Link to="/demo" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">Посмотреть кабинет</Link></div></div>
+          <div id="start" className="rounded-[28px] border border-white/15 bg-white/[.09] p-5 shadow-2xl backdrop-blur-xl sm:p-7"><p className="text-xs font-bold uppercase tracking-[.15em] text-gold-200">Первый шаг</p><h2 className="mt-3 text-2xl font-semibold">Расскажите, что происходит</h2><p className="mt-2 text-sm leading-6 text-white/65">Специалист бережно выслушает и объяснит, с чего начать. Без обязательств и навязчивых звонков.</p>{sent ? <div className="mt-5 rounded-2xl bg-emerald-400/15 p-4 text-sm text-emerald-100"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-300" />Заявка принята. Мы свяжемся с вами для первого разговора.</div> : <form onSubmit={submit} className="mt-6 space-y-3"><input name="name" className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-gold-200/70" placeholder="Как к вам обращаться?" /><input required name="phone" type="tel" className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-gold-200/70" placeholder="+7 (___) ___-__-__" /><button disabled={sending} className="btn-gold w-full">{sending ? 'Отправляем…' : 'Начать диалог'}</button><label className="flex gap-2 text-xs leading-5 text-white/50"><input required name="consent" type="checkbox" className="mt-1" />Согласен(на) на обработку номера телефона для обратной связи.</label>{error && <p className="text-sm text-rose-200">{error}</p>}</form>}</div>
+        </div><div className="absolute bottom-0 left-0 right-0 opacity-40"><div className="wave-rule" /></div>
+      </section>
+      <section id="route" className="sea-grid relative py-20 sm:py-28"><div className="mx-auto max-w-7xl px-5 sm:px-8"><p className="text-xs font-bold uppercase tracking-[.18em] text-gold-600">Путь к ясности</p><div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-[-.035em] text-navy-900">Не просто помощь с документами. <span className="text-navy-500">Понятная история вашего дела.</span></h2><p className="max-w-sm text-sm leading-6 text-navy-600">Каждый этап получает объяснение, срок и следующий шаг — в кабинете и в человеческом разговоре.</p></div><div className="mt-12 grid gap-4 md:grid-cols-3"><RouteStep number="01" title="Услышать вас" text="Спокойно разбираем вашу ситуацию и отвечаем на главные вопросы." /><RouteStep number="02" title="Выбрать маршрут" text="Объясняем порядок, риски, сроки и фиксируем всё в договоре." /><RouteStep number="03" title="Вести к берегу" text="Показываем движение дела, документы и связь с юристом в одном месте." /></div></div></section>
+      <section className="bg-navy-900 py-20 text-white sm:py-28"><div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[.85fr_1.15fr] lg:items-center"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-gold-200">Личный кабинет</p><h2 className="mt-4 text-4xl font-bold leading-tight tracking-[-.035em]">Видно не только статус. Видно, что делать дальше.</h2><p className="mt-5 text-base leading-7 text-white/65">Кабинет устроен как карта пути: точка, где вы сейчас; ближайшая веха; всё, что требует внимания.</p><Link to="/demo" className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-gold-200 hover:text-gold-100">Открыть демо-кабинет <ArrowRight className="h-4 w-4" /></Link></div><div className="rounded-[28px] border border-white/10 bg-white/[.06] p-5 sm:p-7"><div className="flex items-center justify-between text-xs text-white/45"><span>МАЯК · ВАШ МАРШРУТ</span><span>Сегодня</span></div><div className="mt-6 rounded-2xl border border-gold-200/25 bg-gradient-to-br from-gold-300/15 to-transparent p-5"><p className="text-xs font-bold uppercase tracking-wider text-gold-200">Вы здесь</p><p className="mt-2 text-xl font-semibold">Подготовка документов</p><p className="mt-2 text-sm leading-6 text-white/65">Загрузите 2 документа — мы проверим их и сообщим, когда пакет будет готов.</p></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><CabinetItem icon={FileText} text="2 документа ждут" /><CabinetItem icon={MessageCircle} text="Чат с юристом" /><CabinetItem icon={Scale} text="Статус дела" /></div></div></div></section>
+      <section className="py-20 sm:py-28"><div className="mx-auto max-w-7xl px-5 sm:px-8"><p className="text-xs font-bold uppercase tracking-[.18em] text-gold-600">Внутри кабинета</p><div className="mt-10 grid gap-5 md:grid-cols-3"><Benefit icon={FileText} title="Ничего не потеряется" text="Все документы, комментарии и статусы собраны в защищённом пространстве." /><Benefit icon={MessageCircle} title="Связь по делу" text="Вопрос юристу остаётся в истории — не нужно вспоминать, о чём говорили." /><Benefit icon={LockKeyhole} title="Только ваше дело" text="Доступ к материалам защищён персональным аккаунтом." /></div></div></section>
+      <section id="faq" className="border-t border-navy-100 bg-white py-20 sm:py-28"><div className="mx-auto max-w-3xl px-5 sm:px-8"><p className="text-center text-xs font-bold uppercase tracking-[.18em] text-gold-600">Вопросы</p><h2 className="mt-4 text-center text-4xl font-bold tracking-[-.035em]">Спокойно ответим на важное</h2><div className="mt-10 divide-y divide-navy-100">{faqs.map(([question, answer], index) => <button key={question} onClick={() => setOpenFaq(openFaq === index ? null : index)} className="w-full py-5 text-left"><span className="flex items-center justify-between gap-4 font-semibold text-navy-800"><span>{question}</span><ChevronDown className={`h-5 w-5 shrink-0 text-gold-500 transition ${openFaq === index ? 'rotate-180' : ''}`} /></span>{openFaq === index && <p className="mt-3 max-w-2xl text-sm leading-6 text-navy-600">{answer}</p>}</button>)}</div></div></section>
+    </main>
+    <footer className="bg-navy-950 px-5 py-10 text-white/45 sm:px-8"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row"><p className="font-semibold text-white">Маяк <span className="font-normal text-white/45">· юридическое сопровождение</span></p><Link to="/login" className="text-sm text-gold-200 hover:text-gold-100">Войти в личный кабинет</Link></div></footer>
+  </div>
 }
-function MockLine({
-  icon,
-  text,
-  status,
-}: {
-  icon: string;
-  text: string;
-  status: string;
-}) {
-  return (
-    <div className="mt-3 flex items-center gap-3 rounded-xl bg-white/5 p-3">
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#2d7b46]/30">
-        {icon}
-      </span>
-      <span className="text-sm text-slate-200">{text}</span>
-      <span className="ml-auto text-xs font-semibold text-[#7fcb96]">
-        {status}
-      </span>
-    </div>
-  );
-}
-function Step({
-  number,
-  title,
-  text,
-}: {
-  number: string;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-[#f8fafc] p-6 transition hover:border-[#2d7b46] hover:shadow-lg">
-      <span className="grid h-10 w-10 place-items-center rounded-full bg-[#2d7b46] text-lg font-bold text-white">
-        {number}
-      </span>
-      <h3 className="mt-4 text-xl font-bold">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#4a4a6a]">{text}</p>
-    </div>
-  );
-}
-function Benefit({
-  icon: Icon,
-  title,
-  text,
-}: {
-  icon: typeof Scale;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6">
-      <Icon className="h-8 w-8 text-[#2d7b46]" />
-      <h3 className="mt-4 text-xl font-bold">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#4a4a6a]">{text}</p>
-    </div>
-  );
-}
+
+function RouteStep({ number, title, text }: { number: string; title: string; text: string }) { return <article className="rounded-2xl border border-navy-100 bg-white p-6 shadow-card"><span className="text-sm font-bold tracking-wider text-gold-500">{number}</span><h3 className="mt-8 text-xl font-bold text-navy-800">{title}</h3><p className="mt-2 text-sm leading-6 text-navy-600">{text}</p></article> }
+function CabinetItem({ icon: Icon, text }: { icon: typeof Scale; text: string }) { return <div className="rounded-xl border border-white/10 bg-white/5 p-4"><Icon className="h-5 w-5 text-gold-200" /><p className="mt-3 text-sm font-medium text-white/75">{text}</p></div> }
+function Benefit({ icon: Icon, title, text }: { icon: typeof Scale; title: string; text: string }) { return <article className="rounded-2xl border border-navy-100 bg-white p-6 shadow-card"><span className="grid h-11 w-11 place-items-center rounded-xl bg-gold-50 text-gold-600"><Icon className="h-5 w-5" /></span><h3 className="mt-5 text-xl font-bold text-navy-800">{title}</h3><p className="mt-2 text-sm leading-6 text-navy-600">{text}</p></article> }

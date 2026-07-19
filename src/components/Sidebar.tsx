@@ -37,12 +37,13 @@ export function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-navy-800 text-white transition-all duration-300 dark:bg-charcoal-900 ${
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col overflow-hidden bg-navy-950 text-white transition-all duration-300 ${
           collapsed ? 'lg:w-[76px]' : 'lg:w-64'
         } w-64 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-[radial-gradient(ellipse_at_bottom,rgba(39,116,138,.42),transparent_68%)]" />
         {/* Brand */}
         <div className="flex h-16 items-center justify-between px-4">
           <Logo compact={collapsed} onDark />
@@ -56,7 +57,7 @@ export function Sidebar({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        <nav className="relative flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {items.map((item) => {
             const Icon = item.icon
             const isNotif = item.to === '/notifications'
@@ -69,7 +70,7 @@ export function Sidebar({
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-white/10 text-white shadow-sm'
+                      ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/10'
                       : 'text-white/65 hover:bg-white/5 hover:text-white'
                   } ${collapsed ? 'lg:justify-center' : ''}`
                 }
@@ -109,7 +110,7 @@ export function Sidebar({
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-white/10 p-3">
+        <div className="relative border-t border-white/10 p-3">
           <div
             className={`mb-2 flex items-center gap-3 rounded-xl px-2 py-2 ${
               collapsed ? 'lg:justify-center' : ''

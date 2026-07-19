@@ -35,17 +35,12 @@ export function Onboarding() {
   if (error) return <p className="text-sm text-rose-600">{error}</p>
 
   return <div className="mx-auto max-w-4xl space-y-6">
-    <section className="card overflow-hidden">
-      <div className="bg-gradient-to-br from-navy-800 to-navy-900 p-6 text-white">
-        <p className="flex items-center gap-2 text-sm text-gold-300"><ShieldCheck className="h-4 w-4" /> Первый этап: собираем документы</p>
-        <h2 className="mt-3 text-2xl font-bold">Поможем подготовить дело без путаницы</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">Юрист запросил только нужные документы. Загрузите фото или файл, затем отправьте пакет на проверку. Документ исчезнет из списка только после принятия юристом.</p>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 p-5">
-        <p className="text-sm font-medium text-navy-700 dark:text-white/75">{pending === 0 ? 'Все обязательные документы приняты. Отличная работа!' : `Осталось пройти ${pending} ${pending === 1 ? 'пункт' : 'пункта'} чек-листа.`}</p>
-        {pending === 0 && <Link to="/overview" className="btn-primary px-4 py-2">Перейти к делу</Link>}
-      </div>
+    <section className="relative overflow-hidden rounded-[28px] bg-navy-900 p-6 text-white shadow-card sm:p-8">
+      <div aria-hidden className="absolute -right-24 -top-20 h-64 w-64 rounded-full bg-gold-300/20 blur-3xl" />
+      <div className="relative"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-gold-200"><ShieldCheck className="h-4 w-4" /> Ваш ближайший ориентир</p><h2 className="mt-3 text-2xl font-bold sm:text-3xl">Соберём документы вместе</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/70">Юрист запросил только то, что действительно нужно делу. Добавляйте фото или PDF по одному пункту — проверим и подскажем, если что-то потребуется уточнить.</p></div>
+      <div className="relative mt-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[.08] p-4"><div><p className="text-xs font-medium uppercase tracking-wider text-white/45">На этом этапе</p><p className="mt-1 text-sm font-semibold text-white">{pending === 0 ? 'Все обязательные документы приняты' : `Осталось пройти ${pending} ${pending === 1 ? 'пункт' : 'пункта'} чек-листа`}</p></div><span className="rounded-full bg-gold-300/15 px-3 py-1.5 text-xs font-bold text-gold-200">Шаг 1 из 5</span>{pending === 0 && <Link to="/overview" className="btn-gold px-4 py-2">Перейти к делу</Link>}</div>
     </section>
+    <section className="rounded-2xl border border-navy-100 bg-white p-4 text-sm text-navy-600 shadow-card sm:p-5"><p className="font-semibold text-navy-800">Как это работает</p><p className="mt-1 leading-6">Добавьте файл → нажмите «Отправить юристу» → дождитесь статуса «Принято». Мы не потеряем ни один документ и напишем, если потребуется исправление.</p></section>
     <div className="space-y-3">
       {items.filter((item) => item.status !== 'accepted').map((item) => <RequestCard key={item.id} item={item} onChange={load} />)}
       {items.length > 0 && items.every((item) => item.status === 'accepted') && <div className="card p-8 text-center"><CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500" /><h3 className="mt-3 font-bold text-navy-800 dark:text-white">Документы собраны и приняты</h3><p className="mt-1 text-sm text-navy-500">Юрист продолжает подготовку дела. Все дальнейшие события будут в кабинете.</p></div>}

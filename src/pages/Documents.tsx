@@ -1,4 +1,4 @@
-import { FileSearch, Search } from 'lucide-react'
+import { FileSearch, FolderOpen, Search, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { DocumentCard } from '../components/Cards/DocumentCard'
 import { EmptyState } from '../components/Common/EmptyState'
@@ -39,6 +39,14 @@ export function Documents() {
 
   return (
     <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-[26px] bg-navy-900 px-5 py-6 text-white shadow-card sm:px-7 sm:py-7">
+        <div aria-hidden className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-gold-300/20 blur-3xl" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-gold-200"><FolderOpen className="h-4 w-4" /> Архив вашего дела</p><h2 className="mt-3 text-2xl font-bold tracking-tight">Документы — всегда под рукой</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">Сохраняем здесь важные файлы, чтобы вы в любой момент могли вернуться к договору, судебным материалам и уведомлениям.</p></div>
+          <div className="flex gap-3"><div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3"><p className="text-xl font-bold text-gold-200">{documents.length}</p><p className="text-xs text-white/55">всего файлов</p></div><div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3"><p className="text-xl font-bold text-gold-200">{documents.filter((item) => !item.viewedAt).length}</p><p className="text-xs text-white/55">новых</p></div></div>
+        </div>
+      </section>
+      {documents.some((item) => !item.viewedAt) && <section className="flex flex-col gap-3 rounded-2xl border border-gold-200 bg-gold-50 p-4 text-gold-800 sm:flex-row sm:items-center sm:justify-between"><span className="flex items-center gap-3 text-sm"><span className="grid h-9 w-9 place-items-center rounded-xl bg-white text-gold-600"><Sparkles className="h-4 w-4" /></span>Есть новые документы — просмотрите их, когда будет удобно.</span><button onClick={() => setFilter('all')} className="text-left text-sm font-bold text-gold-700 hover:text-gold-800">Показать все</button></section>}
       {/* Toolbar */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
@@ -52,7 +60,7 @@ export function Documents() {
                 className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition-all ${
                   active
                     ? 'bg-navy-800 text-white shadow-sm dark:bg-navy-700'
-                    : 'bg-white text-navy-600 hover:bg-navy-50 dark:bg-charcoal-800 dark:text-white/60 dark:hover:bg-white/5'
+                    : 'border border-navy-100 bg-white text-navy-600 hover:bg-navy-50 dark:bg-charcoal-800 dark:text-white/60 dark:hover:bg-white/5'
                 }`}
               >
                 {f.label}

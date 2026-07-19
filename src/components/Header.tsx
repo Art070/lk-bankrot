@@ -1,4 +1,4 @@
-import { Bell, Menu, MessageCircle, Moon, Sun } from 'lucide-react'
+import { Bell, Menu, MessageCircle, Moon, Sun, Waves } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 
@@ -21,7 +21,7 @@ export function Header({
   const navigate = useNavigate()
 
   return (
-    <header className="sticky top-0 z-20 border-b border-navy-100/60 bg-white/80 backdrop-blur-md dark:border-white/5 dark:bg-charcoal-900/80">
+    <header className="sticky top-0 z-20 border-b border-navy-100/70 bg-white/85 backdrop-blur-xl dark:border-white/5 dark:bg-navy-950/85">
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6 lg:px-8">
         <button
           onClick={onOpenMobile}
@@ -31,7 +31,9 @@ export function Header({
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <span className="hidden h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy-50 text-navy-600 sm:grid dark:bg-white/5 dark:text-gold-200"><Waves className="h-4 w-4" /></span>
+          <div className="min-w-0">
           <h1 className="truncate text-lg font-bold text-navy-800 dark:text-white sm:text-xl">
             {title}
           </h1>
@@ -40,6 +42,7 @@ export function Header({
               {subtitle}
             </p>
           )}
+          </div>
         </div>
 
         <button

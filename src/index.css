@@ -15,13 +15,13 @@ html {
 body {
   margin: 0;
   font-family: 'Inter', 'Poppins', system-ui, sans-serif;
-  background-color: #f8fafc;
-  color: #2d3748;
+  background-color: #f3f8f8;
+  color: #12364b;
   overscroll-behavior-y: none;
 }
 
 .dark body {
-  background-color: #0b1728;
+  background-color: #041b2d;
   color: #e8edf5;
 }
 
@@ -34,13 +34,13 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(45, 123, 70, 0.18);
+  background: rgba(24, 93, 115, 0.2);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(45, 123, 70, 0.35);
+  background: rgba(24, 93, 115, 0.4);
   background-clip: content-box;
 }
 .dark ::-webkit-scrollbar-thumb {
@@ -50,7 +50,7 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-2xl bg-white shadow-card border border-navy-100/40 transition-all duration-300;
+    @apply rounded-2xl bg-white shadow-card border border-navy-100/70 transition-all duration-300;
   }
   .dark .card {
     @apply bg-charcoal-800 border-white/5;
@@ -59,10 +59,10 @@ body {
     @apply hover:shadow-card-hover hover:-translate-y-0.5;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(13,52,74,.16)] transition-all duration-200 hover:-translate-y-px hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-gold {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-400 px-5 py-2.5 text-sm font-semibold text-navy-900 transition-all duration-200 hover:bg-gold-300 focus:outline-none focus:ring-2 focus:ring-gold-300 focus:ring-offset-2 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-400 px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-[0_8px_18px_rgba(217,154,64,.18)] transition-all duration-200 hover:-translate-y-px hover:bg-gold-300 focus:outline-none focus:ring-2 focus:ring-gold-300 focus:ring-offset-2 disabled:opacity-50;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border border-navy-200/60 bg-transparent px-4 py-2 text-sm font-medium text-navy-700 transition-all duration-200 hover:bg-navy-50 dark:text-navy-100 dark:border-white/10 dark:hover:bg-white/5;
@@ -123,6 +123,11 @@ body {
 .journey-lighthouse-bg::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 9rem; background: linear-gradient(transparent, rgba(226,184,43,.42)); box-shadow: 0 0 28px rgba(226,184,43,.25); }
 .journey-lighthouse-bg__beam { position: absolute; bottom: 8rem; left: -14rem; width: 32rem; height: 9rem; transform-origin: 50% 100%; background: linear-gradient(90deg, transparent, rgba(226,184,43,.45), transparent); clip-path: polygon(50% 100%, 100% 0, 0 0); transition: opacity .2s ease, transform .2s ease; }
 .journey-lighthouse-bg__caption { position: absolute; bottom: .25rem; right: 0; margin: 0; color: rgba(26,54,93,.28); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; transition: opacity .25s ease; }
+
+/* Brand atmosphere: calm shore in public spaces, a night navigation field in the cabinet. */
+.sea-grid { background-image: linear-gradient(rgba(24,93,115,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(24,93,115,.04) 1px, transparent 1px); background-size: 28px 28px; }
+.wave-rule { height: 10px; background: radial-gradient(16px 8px at 50% 100%, transparent 48%, rgba(79,153,170,.34) 51%, rgba(79,153,170,.34) 60%, transparent 63%) 0 0 / 32px 10px repeat-x; }
+.lighthouse-overview { background-image: linear-gradient(90deg, rgba(4,27,45,.97) 0%, rgba(4,27,45,.9) 47%, rgba(4,27,45,.44) 100%), radial-gradient(circle at 18% 12%, rgba(237,189,105,.17), transparent 29%), url('/images/mayak-night-reference.png'); background-position: center, center, center; background-size: cover; }
 
 @media (max-width: 1023px) { .journey-lighthouse-bg { display: none; } }
 @media (prefers-reduced-motion: reduce) { .lighthouse-overview::before { animation: none; } .journey-lighthouse-bg__beam { transition: none; } }

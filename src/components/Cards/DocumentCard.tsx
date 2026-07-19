@@ -63,7 +63,8 @@ export function DocumentCard({ doc }: { doc: CaseDocument }) {
   }
 
   return (
-    <div className="card card-hover flex items-center gap-4 p-4">
+    <article className={`card card-hover relative flex items-center gap-4 p-4 sm:p-5 ${isUnread ? 'border-gold-200/80' : ''}`}>
+      {isUnread && <span className="absolute left-0 top-5 h-10 w-1 rounded-r-full bg-gold-400" />}
       <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${meta.cls}`}>
         <Icon className="h-5 w-5" />
       </div>
@@ -95,7 +96,7 @@ export function DocumentCard({ doc }: { doc: CaseDocument }) {
       <button
         onClick={handleDownload}
         disabled={downloading}
-        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-navy-200/60 px-3 py-2 text-xs font-semibold text-navy-700 transition-colors hover:bg-navy-50 hover:text-navy-800 disabled:opacity-60 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
+        className="flex shrink-0 items-center gap-1.5 rounded-xl border border-navy-200/60 px-3 py-2 text-xs font-semibold text-navy-700 transition-colors hover:bg-navy-50 hover:text-navy-800 disabled:opacity-60 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
       >
         {downloading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -106,7 +107,7 @@ export function DocumentCard({ doc }: { doc: CaseDocument }) {
           {downloading ? 'Готовим…' : 'Скачать PDF'}
         </span>
       </button>
-    </div>
+    </article>
   )
 }
 
